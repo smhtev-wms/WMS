@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TrustGate TM Companion</title>
+  <style>
+    body { margin: 0; font-family: Segoe UI, sans-serif; background: #f4f6fb; color: #1f2937; }
+    .app-shell { display: flex; flex-direction: column; min-height: 100vh; padding: 28px; }
+    .card { background: #fff; border-radius: 16px; box-shadow: 0 12px 28px rgba(15,23,42,0.08); padding: 24px; margin-bottom: 20px; }
+    .chip { display: inline-flex; padding: 8px 12px; border-radius: 999px; background: #e8eef9; color: #1f3a8a; margin-bottom: 16px; }
+    .section-title { font-size: 1.15rem; margin-bottom: 14px; font-weight: 600; }
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 0.95rem; margin-bottom: 6px; font-weight: 600; }
+    .field input, .field textarea { width: 100%; padding: 12px 14px; border: 1px solid #d1d5db; border-radius: 12px; background: #f9fafb; color: #111827; }
+    .field textarea { resize: vertical; height: 104px; }
+    .footer { margin-top: auto; font-size: 0.92rem; color: #4b5563; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; padding: 12px 18px; border: none; border-radius: 12px; background: #2563eb; color: #fff; cursor: pointer; font-weight: 600; transition: background .18s ease; }
+    .btn:hover { background: #1d4ed8; }
+    .status { margin-top: 12px; font-size: 0.95rem; }
+    .status.success { color: #165e3b; }
+    .status.error { color: #b91c1c; }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <div class="card">
+      <div class="section-title">Install & Device Enrollment</div>
+      <p>Enter your device details below. The companion app will save the install code locally for later WMS validation.</p>
+      <div class="field">
+        <label for="name">Device Name</label>
+        <input id="name" type="text" />
+      </div>
+      <div class="field">
+        <label for="location">Location</label>
+        <input id="location" type="text" />
+      </div>
+      <div class="field">
+        <label for="installCode">WMS install code</label>
+        <input id="installCode" type="text" />
+      </div>
+      <button class="btn" id="saveButton">Save Enrollment</button>
+      <div class="status" id="status"></div>
+    </div>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>

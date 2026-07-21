@@ -1,0 +1,45 @@
+{
+  "name": "trustgate-tm-companion",
+  "version": "0.1.0",
+  "description": "TrustGate TM Companion App for Windows",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "node build-installer.js"
+  },
+  "author": "TrustGate",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^26.2.0",
+    "electron-builder": "^24.6.0",
+    "electron-packager": "^17.1.2",
+    "electron-winstaller": "^5.4.4"
+  },
+  "build": {
+    "appId": "com.trustgate.wmscompanion",
+    "productName": "TrustGate TM Companion",
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "sign": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "createDesktopShortcut": false,
+      "createStartMenuShortcut": false,
+      "runAfterFinish": false,
+      "allowElevation": true
+    },
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "package.json",
+      "src/**/*"
+    ]
+  }
+}
