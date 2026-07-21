@@ -21,9 +21,20 @@ if not exist .git (
 REM Ensure git identity is configured (needed before first commit)
 git config user.email >nul 2>&1
 if errorlevel 1 (
-  echo Git user identity not set. Configuring default identity...
-  git config --global user.email "smhtevwms@gmail.com"
-  git config --global user.name "Sakthi Murugan High Tech Engineering"
+  echo Git user identity not set. Configuring repo-local identity...
+  git config user.email "smhtevwms@gmail.com"
+  git config user.name "Sakthi Murugan High Tech Engineering"
+)
+echo Using git identity:
+git config user.name || echo "(name not set)"
+git config user.email || echo "(email not set)"
+
+REM Warn if node_modules exists but isn't ignored
+if exist node_modules (
+  findstr /M /C:"node_modules" .gitignore >nul 2>&1
+  if errorlevel 1 (
+    echo WARNING: node_modules exists but is not listed in .gitignore. This may add large files to the repo.
+  )
 )
 
 REM Set remote origin if missing
@@ -57,6 +68,12 @@ if errorlevel 1 (
 ) else (
   echo Pushing to GitHub...
   git push -u origin main
+  if errorlevel 1 (
+    echo ERROR: git push failed. Please check authentication and remote branch.
+    exit /b 1
+  ) else (
+    echo Push succeeded.
+  )
 )
 
 echo.
