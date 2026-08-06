@@ -228,10 +228,10 @@ function UserBadge({ profile, ini, firstName, roleLabel, g, theme, setTheme, fon
                 </div>
               </div>
               <div style={{ overflow: 'hidden' }}>
-                <p style={{ fontSize: 14, fontWeight: 700, color: g.drop.text, margin: 0, fontFamily: 'var(--font-ui)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  {profile.full_name || 'User'}
+                <p style={{ fontSize: 16, fontWeight: 800, color: g.drop.text, margin: 0, fontFamily: 'var(--font-ui)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {profile?.nickname || profile.full_name || 'User'}
                 </p>
-                <p style={{ fontSize: 11, color: g.drop.sub, margin: '2px 0 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                <p style={{ fontSize: 11, color: g.drop.sub, margin: '6px 0 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {profile.email || ''}
                 </p>
               </div>
@@ -473,6 +473,8 @@ export default function Header({ onEditDevice }) {
     : initials(profile?.full_name || '').slice(0, 3)
   const firstName = profile?.full_name?.split(' ')[0] || 'User'
   const roleLabel = ROLE_LABELS[profile?.role] || profile?.role || ''
+  const badgeName = profile?.nickname || firstName
+  const badgeSubLabel = roleLabel
   const g         = T[theme] || T.royal
 
   const churchId = church?.church_code || church?.id || 'Unknown'
@@ -593,7 +595,7 @@ export default function Header({ onEditDevice }) {
 
           <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12 }}>
             <UserBadge
-              profile={profile} ini={ini} firstName={firstName} roleLabel={roleLabel}
+              profile={profile} ini={ini} firstName={badgeName} roleLabel={badgeSubLabel}
               g={g} theme={theme} setTheme={setTheme} font={font} setFont={setFont}
               onSignOut={signOut} onEditDevice={onEditDevice}
             />

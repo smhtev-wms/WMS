@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Monitor, Loader2 } from 'lucide-react'
-import { supabase, adminSupabase } from '../../lib/supabase'
+import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../lib/AuthContext'
 import Sidebar from './Sidebar'
 import Header, { HEADER_H } from './Header'
@@ -18,6 +18,7 @@ export default function AppLayout({ children }) {
   const [savingPersonalInfo, setSavingPersonalInfo] = useState(false)
   const [personalForm,     setPersonalForm]     = useState({ avatarName: '' })
   const [personalError,    setPersonalError]    = useState('')
+  const DEVICE_PENDING_KEY = 'device_pending'
   const [personalSuccess,  setPersonalSuccess]  = useState(false)
 
   // ── New-device detection on mount ──────────────────────────────
@@ -26,7 +27,10 @@ export default function AppLayout({ children }) {
 
   // ── Edit personal info trigger (called from Header dropdown) ────
   const openEditMode = async () => {
-    setPersonalForm({ avatarName: profile?.avatar_name || '' })
+    setPersonalForm({
+      avatarName: profile?.avatar_name || '',
+      nickname: profile?.nickname || ''
+    })
     setPendingInfo({ userId: user?.id })
     setIsEditMode(true)
     setPersonalError('')
@@ -42,49 +46,56 @@ export default function AppLayout({ children }) {
     
     try {
       const avatarValue = personalForm.avatarName?.trim() || ''
+      const nicknameValue = personalForm.nickname?.trim() || ''
 
       if (!user?.id) {
         console.warn('No authenticated user available to update profiles table; skipping profile update')
       } else {
         const uid = user.id
         console.log('Attempting profiles.update for uid:', uid, 'avatar:', avatarValue)
-        const { data: profileData, error: profileError } = await adminSupabase
+        // Use anon client for browser-side writes. If update didn't affect a
+        // row, fall back to upsert to create the profile row for the user.
+        const updatePayload = { avatar_name: avatarValue || null, updated_at: new Date().toISOString() }
+        if (nicknameValue !== '') updatePayload.nickname = nicknameValue
+
+        const { data: updateData, error: updateError } = await supabase
           .from('profiles')
-          .update({ avatar_name: avatarValue || null, updated_at: new Date().toISOString() })
+          .update(updatePayload)
           .eq('id', uid)
-          .select('id, avatar_name')
-          .maybeSingle()
+          .select('id, avatar_name, nickname')
 
-        console.log('profiles.update returned:', { profileData, profileError })
-        console.log('profiles.update returned avatar_name:', profileData?.avatar_name)
+        console.log('profiles.update returned:', { updateData, updateError })
 
-        if (profileError) {
-          console.error('Failed to update profiles.avatar_name:', profileError)
-          setPersonalError(profileError.message || 'Failed to update profile avatar')
-          setSavingPersonalInfo(false)
-          return
+        if (updateError) {
+          console.warn('profiles.update error, attempting upsert:', updateError.message)
         }
 
-        const { data: verifyData, error: verifyError } = await adminSupabase
-          .from('profiles')
-          .select('id, avatar_name')
-          .eq('id', uid)
-          .single()
+        let finalAvatar = avatarValue
 
-        console.log('profiles.verify after update:', { verifyData, verifyError })
+        if (!updateError && Array.isArray(updateData) && updateData.length > 0) {
+          finalAvatar = updateData[0]?.avatar_name
+          console.log('✅ profiles.avatar_name updated for user', uid, '->', finalAvatar)
+        } else {
+          const upsertPayload = { id: uid, avatar_name: avatarValue || null, updated_at: new Date().toISOString() }
+          if (nicknameValue !== '') upsertPayload.nickname = nicknameValue
 
-        if (verifyError) {
-          console.error('Failed to verify profiles.avatar_name after update:', verifyError)
+          const { data: upsertData, error: upsertError } = await supabase
+            .from('profiles')
+            .upsert(upsertPayload, { onConflict: 'id' })
+            .select('id, avatar_name, nickname')
+
+          console.log('profiles.upsert returned:', { upsertData, upsertError })
+
+          if (upsertError) {
+            console.error('Failed to update/upsert profiles.avatar_name:', upsertError)
+            setPersonalError(upsertError.message || 'Failed to update profile avatar')
+            setSavingPersonalInfo(false)
+            return
+          }
+
+          finalAvatar = Array.isArray(upsertData) && upsertData.length > 0 ? upsertData[0]?.avatar_name : finalAvatar
+          console.log('✅ profiles.avatar_name upserted for user', uid, '->', finalAvatar)
         }
-
-        if (verifyData?.avatar_name !== avatarValue) {
-          console.warn('profiles.verify returned wrong avatar_name after update', {
-            requested: avatarValue,
-            returned: verifyData?.avatar_name,
-          })
-        }
-
-        console.log('✅ profiles.avatar_name update response for user', uid, '->', avatarValue)
       }
 
       // Refresh the in-memory profile so UI updates everywhere, then close modal
@@ -160,6 +171,7 @@ export default function AppLayout({ children }) {
                   <div style={{ padding: '16px 22px' }}>
               {[
                 { label: 'AVATAR NAME',        key: 'avatarName', required: false, hint: 'Initials shown in the avatar circle — leave blank to use your account name' },
+                { label: 'NICKNAME',           key: 'nickname',   required: false, hint: 'Short name shown on the header badge (optional)' },
               ].map(f => (
                 <div key={f.key} style={{ marginBottom: 14 }}>
                   <label style={{ display: 'block', fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', color: '#60a5fa', marginBottom: 6 }}>
@@ -199,7 +211,7 @@ export default function AppLayout({ children }) {
                 style={{ flex: 1, padding: '11px 0', borderRadius: 9, border: 'none', background: savingPersonalInfo ? 'rgba(37,99,235,0.4)' : 'linear-gradient(135deg,#2563eb,#1d4ed8)', color: '#fff', fontSize: 13, fontWeight: 700, cursor: savingPersonalInfo ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
                 {savingPersonalInfo
                   ? <><Loader2 size={14} style={{ animation: 'spin 0.8s linear infinite' }} /> Saving…</>
-                  : 'Update Avatar →'}
+                  : 'Update'}
               </button>
             </div>
 

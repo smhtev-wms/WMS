@@ -4,6 +4,8 @@ const ENV_SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
 const ENV_SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_KEY
 const ENV_SUPABASE_SERVICE_ROLE = import.meta.env.VITE_SUPABASE_SERVICE_ROLE || import.meta.env.SUPABASE_SERVICE_ROLE
 
+// Use Church-CMS production Supabase by default so this local WMS copy
+// writes to the same database the user inspects in the dashboard.
 export const SUPABASE_URL = ENV_SUPABASE_URL || 'https://reblyjkgkyjxwnolljkf.supabase.co'
 export const SUPABASE_ANON_KEY = ENV_SUPABASE_ANON_KEY || ''
 export const SUPABASE_SERVICE_ROLE = ENV_SUPABASE_SERVICE_ROLE || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndqYXNqcnRoaWpweGxhcnJlaWNzIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NjE4MDMwMCwiZXhwIjoyMDkxNzU2MzAwfQ.B8oBuQRGxdkhFnvSrbddtMQ1Abo9YNwexRy1nks3Sn'

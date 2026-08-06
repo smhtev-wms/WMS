@@ -65,11 +65,7 @@ export function AuthProvider({ children }) {
       } else {
         const localTheme = localStorage.getItem('cms_theme')
         if (localTheme) {
-          ;(async () => {
-            try {
-              await supabase.from('profiles').update({ theme: localTheme }).eq('id', data.id)
-            } catch {}
-          })()
+          ;(async () => { try { await adminSupabase.from('profiles').update({ theme: localTheme }).eq('id', data.id) } catch {} })()
         }
       }
 
@@ -79,11 +75,7 @@ export function AuthProvider({ children }) {
       } else {
         const localFont = localStorage.getItem('cms_font')
         if (localFont) {
-          ;(async () => {
-            try {
-              await supabase.from('profiles').update({ font: localFont }).eq('id', data.id)
-            } catch {}
-          })()
+          ;(async () => { try { await adminSupabase.from('profiles').update({ font: localFont }).eq('id', data.id) } catch {} })()
         }
       }
 
@@ -252,9 +244,34 @@ export function AuthProvider({ children }) {
       console.log('✅ refreshProfile loaded:', data?.email, 'avatar_name:', data?.avatar_name, 'profileData:', data)
       setProfile(data)
 
-      // Apply theme/font if present
-      if (data?.theme) applyProfileTheme(data.theme)
-      if (data?.font) applyProfileFont(data.font)
+      // Apply theme/font if present, otherwise fall back to localStorage and persist
+      if (data?.theme) {
+        applyProfileTheme(data.theme)
+      } else {
+        const localTheme = localStorage.getItem('cms_theme')
+        if (localTheme) {
+          applyProfileTheme(localTheme)
+          try {
+            await supabase.from('profiles').upsert({ id: data.id, theme: localTheme }, { onConflict: 'id' })
+          } catch (persistError) {
+            console.warn('Failed to persist theme on refresh:', persistError)
+          }
+        }
+      }
+
+      if (data?.font) {
+        applyProfileFont(data.font)
+      } else {
+        const localFont = localStorage.getItem('cms_font')
+        if (localFont) {
+          applyProfileFont(localFont)
+          try {
+            await supabase.from('profiles').upsert({ id: data.id, font: localFont }, { onConflict: 'id' })
+          } catch (persistError) {
+            console.warn('Failed to persist font on refresh:', persistError)
+          }
+        }
+      }
 
       return true
     } catch (err) {

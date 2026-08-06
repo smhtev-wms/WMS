@@ -44,29 +44,52 @@ export function ThemeProvider({ children }) {
     return (saved && FONTS[saved]) ? saved : 'outfit'
   })
 
-  const saveProfilePreference = async (field, value) => {
+  const savePreference = async (field, value) => {
     try {
       const { data: { session }, error: sessionError } = await supabase.auth.getSession()
-      if (sessionError) throw sessionError
-      if (!session?.user?.id) return
+      if (sessionError) {
+        console.warn('[ThemeContext] Could not get session for save:', sessionError.message)
+        return false
+      }
+      const userId = session?.user?.id
+      if (!userId) return false
 
-      const { error } = await supabase
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', userId)
+        .single()
+
+      if (profileError && profileError.code !== 'PGRST116') {
+        console.warn('[ThemeContext] Could not check profile existence:', profileError.message)
+      }
+
+      // Use the client (anon) Supabase for browser-side writes. Service role
+      // keys must never be used from the browser (they cause 401 Invalid API key).
+      const updateResult = await supabase
         .from('profiles')
         .update({ [field]: value })
-        .eq('id', session.user.id)
+        .eq('id', userId)
+        .select()
 
-      if (!error) return
+      if (!updateResult.error && Array.isArray(updateResult.data) && updateResult.data.length > 0) {
+        return true
+      }
 
-      console.warn(`[ThemeContext] Auth client save failed for ${field}, trying fallback:`, error.message)
-
-      const { error: adminError } = await adminSupabase
+      const upsertResult = await supabase
         .from('profiles')
-        .update({ [field]: value })
-        .eq('id', session.user.id)
+        .upsert({ id: userId, [field]: value }, { onConflict: 'id' })
+        .select()
 
-      if (adminError) throw adminError
+      if (!upsertResult.error && Array.isArray(upsertResult.data)) {
+        return true
+      }
+
+      console.warn('[ThemeContext] Could not save preference to profile:', updateResult.error?.message || upsertResult.error?.message)
+      return false
     } catch (err) {
-      console.warn(`[ThemeContext] Could not save ${field} to profile:`, err.message)
+      console.warn('[ThemeContext] Save preference failed:', err.message)
+      return false
     }
   }
 
@@ -74,14 +97,14 @@ export function ThemeProvider({ children }) {
     if (!THEMES[t]) return
     setThemeState(t)
     applyToDOM(t)
-    await saveProfilePreference('theme', t)
+    await savePreference('theme', t)
   }
 
   const setFont = async (f) => {
     if (!FONTS[f]) return
     setFontState(f)
     applyFontToDOM(f)
-    await saveProfilePreference('font', f)
+    await savePreference('font', f)
   }
 
   const applyProfileTheme = (t) => {

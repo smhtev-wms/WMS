@@ -366,7 +366,13 @@ function PublicRoute({ children }) {
     setRequestingApproval(true)
     try {
       const payload = await fetchCompanionStatus()
-      if (!payload?.deviceId) throw new Error('Companion did not return a device id')
+      console.log('[App] Companion approval payload:', payload)
+      if (!payload) {
+        throw new Error('Unable to contact TrustGate TM Companion at http://127.0.0.1:65432/status. Ensure the companion is running and your browser allows local connections.')
+      }
+      if (!payload.deviceId) {
+        throw new Error('Companion app did not return a device id. Restart the companion and try again.')
+      }
 
       const requestResult = await requestDeviceApproval({
         deviceId: payload.deviceId,

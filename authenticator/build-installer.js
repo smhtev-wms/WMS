@@ -18,12 +18,12 @@ async function buildInstaller() {
     out: outDir,
     overwrite: true,
     asar: false,
-    prune: false,
+    prune: true,
     executableName: 'TrustGateTMCompanion',
     name: 'TrustGateTMCompanion',
     appVersion: '0.1.0',
     icon: undefined,
-    ignore: [/dist/, /node_modules/, /build-installer\.js/],
+    ignore: [/dist/, /build-installer\.js/],
   })
 
   if (appPaths.length === 0) {
