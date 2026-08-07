@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../lib/AuthContext'
 import { signIn } from '../lib/auth'
 import { VENDOR, getChurch } from '../lib/supabase'
-import { warmGeoLocation, getOrCreateDeviceId, checkDeviceRegistered, checkDeviceRegisteredByUser, saveDevice, tagLoginWithDevice } from '../lib/loginLogs'
+import { getOrCreateDeviceId, checkDeviceRegistered, checkDeviceRegisteredByUser } from '../lib/loginLogs'
 import { fetchCompanionStatus } from '../lib/companion'
 import { Eye, EyeOff, Loader2, CheckCircle2 } from 'lucide-react'
 
@@ -58,7 +58,6 @@ export default function LoginPage() {
   useEffect(() => {
     if (session) navigate('/dashboard')  // already logged in — redirect immediately
     getChurch().then(setOrganization)
-    warmGeoLocation()
   }, []) // eslint-disable-line
 
   const handleSubmit = async e => {
@@ -72,21 +71,12 @@ export default function LoginPage() {
       const companion = await fetchCompanionStatus()
       const devId = companion?.deviceId || getOrCreateDeviceId()
       const knownByDevice = await checkDeviceRegistered(devId)
-      const companionProfile = companion?.deviceProfile || null
 
-      // Previously a device-setup popup was queued here for new devices.
-      // That flow has been removed — device setup is optional and available
-      // from the "Edit Device" action in the header.
-
-      const deviceMeta = {
-        deviceId:   devId,
-        deviceName: knownByDevice?.user_name || companionProfile?.name || null,
-        designation: knownByDevice?.designation || companionProfile?.designation || null,
-        org:         knownByDevice?.org_name || companionProfile?.orgName || '',
-        location:    knownByDevice?.location || companionProfile?.location || null,
+      if (!knownByDevice) {
+        sessionStorage.setItem('device_setup_pending', JSON.stringify({ deviceId: devId }))
       }
 
-      const { error: err, data: authData } = await signIn(email.trim(), password, deviceMeta)
+      const { error: err, data: authData } = await signIn(email.trim(), password)
 
       if (err) {
         sessionStorage.removeItem('device_setup_pending')
@@ -102,44 +92,28 @@ export default function LoginPage() {
         setLoading(false)
         const uid = authData?.user?.id
 
-        // Device metadata updates should never break the login experience.
-        void (async () => {
-          try {
-            if (knownByDevice) {
-              await tagLoginWithDevice(uid, {
-                deviceId:    devId,
-                userName:    knownByDevice.user_name,
-                location:    knownByDevice.location,
-                org:         knownByDevice.org_name,
-                designation: knownByDevice.designation || null,
-              })
-            } else {
-              const knownByUser = await checkDeviceRegisteredByUser(uid)
-              if (!knownByUser) {
-                const profile = companion?.deviceProfile || null
-                if (profile?.name && profile?.location) {
-                  await saveDevice({
-                    deviceId:    devId,
-                    userId:      uid,
-                    orgName:     profile?.orgName || '',
-                    userName:    profile.name,
-                    designation: profile.designation || null,
-                    location:    profile.location,
-                  })
-                  await tagLoginWithDevice(uid, {
-                    deviceId:    devId,
-                    userName:    profile.name,
-                    location:    profile.location,
-                    org:         profile.orgName || '',
-                    designation: profile.designation || null,
-                  })
-                }
-              }
-            }
-          } catch (deviceError) {
-            console.warn('Device registration/log tagging failed:', deviceError)
+        if (knownByDevice) {
+          sessionStorage.removeItem('device_setup_pending')
+        } else {
+          const knownByUser = await checkDeviceRegisteredByUser(uid)
+          if (knownByUser) {
+            const loc = knownByUser.location || ''
+            const idx = loc.lastIndexOf(', ')
+            sessionStorage.setItem('device_setup_pending', JSON.stringify({
+              deviceId: devId,
+              userId: uid,
+              prefill: {
+                userName:   knownByUser.user_name   || '',
+                orgName:    knownByUser.org_name    || '',
+                area:       idx !== -1 ? loc.slice(0, idx) : '',
+                city:       idx !== -1 ? loc.slice(idx + 2) : loc,
+                avatarName: knownByUser.avatar_name || '',
+              },
+            }))
+          } else {
+            sessionStorage.setItem('device_setup_pending', JSON.stringify({ deviceId: devId, userId: uid }))
           }
-        })()
+        }
       }
     } catch (ex) {
       sessionStorage.removeItem('device_setup_pending')

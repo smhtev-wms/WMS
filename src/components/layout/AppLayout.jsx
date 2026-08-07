@@ -136,13 +136,14 @@ export default function AppLayout({ children }) {
       <div className="no-print" style={{ display: 'contents' }}>
         <Sidebar collapsed={collapsed} sidebarW={sidebarW} onToggle={toggle} />
       </div>
-      <main className="app-main" style={{
+      <main className="app-main app-main-shell" style={{
         flex: 1,
         marginLeft: sidebarW,
         marginTop: HEADER_H,
         minHeight: `calc(100vh - ${HEADER_H}px)`,
-        padding: '28px 32px',
+        padding: '28px 32px 40px',
         width: '100%',
+        maxWidth: '100%',
         transition: 'margin-left 0.25s ease',
         minWidth: 0,
       }}>
@@ -151,66 +152,73 @@ export default function AppLayout({ children }) {
 
       {/* ── Personal Info Edit Popup ──────────────────────────────── */}
       {showPersonalInfo && pendingInfo && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(5,8,30,0.82)', backdropFilter: 'blur(6px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-          <div style={{ width: '100%', maxWidth: 420, background: 'linear-gradient(180deg,rgba(15,20,56,0.98) 0%,rgba(10,14,42,0.99) 100%)', border: '1px solid rgba(59,130,246,0.3)', borderRadius: 18, overflow: 'hidden', boxShadow: '0 24px 64px rgba(0,0,0,0.7)' }}>
+        <div className="modal-overlay">
+          <div className="modal-panel modal-panel-sm" role="dialog" aria-labelledby="personal-info-title">
 
-            <div style={{ padding: '18px 22px 14px', borderBottom: '1px solid rgba(59,130,246,0.15)', display: 'flex', alignItems: 'center', gap: 12 }}>
-              <div style={{ width: 38, height: 38, borderRadius: 10, background: 'rgba(59,130,246,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <Monitor size={18} style={{ color: '#60a5fa' }} />
-              </div>
-              <div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>
-                  {isEditMode ? 'Edit Personal Info' : 'New Device Detected'}
+            <div className="card-header" style={{ borderRadius: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div className="modal-icon-wrap">
+                  <Monitor size={18} style={{ color: 'var(--accent)' }} />
                 </div>
-                <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>
-                  {isEditMode ? 'Update your avatar initials only' : 'One-time setup — saved for all future logins'}
+                <div>
+                  <div id="personal-info-title" className="card-title" style={{ fontSize: 14 }}>
+                    {isEditMode ? 'Edit personal info' : 'New device detected'}
+                  </div>
+                  <p className="page-subtitle" style={{ marginTop: 2, marginBottom: 0 }}>
+                    {isEditMode ? 'Update how your name appears in the header' : 'One-time setup — saved for future logins'}
+                  </p>
                 </div>
               </div>
             </div>
 
-                  <div style={{ padding: '16px 22px' }}>
+            <div style={{ padding: '18px 22px' }}>
               {[
-                { label: 'AVATAR NAME',        key: 'avatarName', required: false, hint: 'Initials shown in the avatar circle — leave blank to use your account name' },
-                { label: 'NICKNAME',           key: 'nickname',   required: false, hint: 'Short name shown on the header badge (optional)' },
+                { label: 'Avatar initials', key: 'avatarName', required: false, hint: 'Shown in the avatar circle — leave blank to use your account name' },
+                { label: 'Nickname', key: 'nickname', required: false, hint: 'Short name on the header badge (optional)' },
               ].map(f => (
                 <div key={f.key} style={{ marginBottom: 14 }}>
-                  <label style={{ display: 'block', fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', color: '#60a5fa', marginBottom: 6 }}>
-                    {f.label}{f.required && <span style={{ color: '#f87171', marginLeft: 3 }}>*</span>}
+                  <label className="field-label">
+                    {f.label}{f.required && <span style={{ color: 'var(--danger)', marginLeft: 3 }}>*</span>}
                   </label>
                   <input
-                    style={{ width: '100%', height: 44, padding: '0 14px', background: 'rgba(10,14,42,0.8)', border: '1px solid rgba(59,130,246,0.25)', borderRadius: 10, fontSize: 13, color: '#e2e8f0', fontFamily: 'inherit', outline: 'none' }}
+                    className="field-input"
                     value={personalForm[f.key]}
                     onChange={e => setPersonalForm(v => ({ ...v, [f.key]: e.target.value }))}
                     placeholder={f.key === 'avatarName' ? 'e.g. PSK' : ''}
                   />
-                  {f.hint && <p style={{ fontSize: 9, color: '#475569', margin: '5px 0 0', letterSpacing: '0.04em' }}>{f.hint}</p>}
+                  {f.hint && <p className="field-hint">{f.hint}</p>}
                 </div>
               ))}
-              
+
               {personalError && (
-                <div style={{ marginTop: 14, padding: '12px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 8, fontSize: 12, color: '#fca5a5' }}>
-                  ⚠️ {personalError}
-                </div>
+                <div className="alert alert-danger">{personalError}</div>
               )}
-              
+
               {personalSuccess && (
-                <div style={{ marginTop: 14, padding: '12px', background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.3)', borderRadius: 8, fontSize: 12, color: '#86efac', display: 'flex', alignItems: 'center', gap: 8 }}>
-                  ✓ Personal info saved successfully!
-                </div>
+                <div className="alert alert-success">Personal info saved successfully.</div>
               )}
             </div>
 
             <div style={{ padding: '0 22px 20px', display: 'flex', gap: 10 }}>
               {isEditMode && (
-                <button onClick={() => { setShowPersonalInfo(false); setIsEditMode(false) }} disabled={savingPersonalInfo}
-                  style={{ flex: '0 0 auto', padding: '10px 18px', borderRadius: 9, border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: '#64748b', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => { setShowPersonalInfo(false); setIsEditMode(false) }}
+                  disabled={savingPersonalInfo}
+                >
                   Cancel
                 </button>
               )}
-              <button onClick={handleSavePersonalInfo} disabled={savingPersonalInfo}
-                style={{ flex: 1, padding: '11px 0', borderRadius: 9, border: 'none', background: savingPersonalInfo ? 'rgba(37,99,235,0.4)' : 'linear-gradient(135deg,#2563eb,#1d4ed8)', color: '#fff', fontSize: 13, fontWeight: 700, cursor: savingPersonalInfo ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+              <button
+                type="button"
+                className="btn btn-primary"
+                style={{ flex: 1, justifyContent: 'center' }}
+                onClick={handleSavePersonalInfo}
+                disabled={savingPersonalInfo}
+              >
                 {savingPersonalInfo
-                  ? <><Loader2 size={14} style={{ animation: 'spin 0.8s linear infinite' }} /> Saving…</>
+                  ? <><Loader2 size={14} className="animate-spin" /> Saving…</>
                   : 'Update'}
               </button>
             </div>

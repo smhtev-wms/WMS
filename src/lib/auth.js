@@ -1,6 +1,5 @@
 import { supabase } from './supabase'
 import { formatDate } from './date'
-import { fetchGeoLocation, insertLoginLog } from './loginLogs'
 
 export const ROLE_PERMISSIONS = {
   super_admin: { canAdd:true,  canEdit:true,  canDelete:true,  canPrint:true,  canManageUsers:true  },
@@ -35,7 +34,7 @@ export function fmtDate(s) {
   return formatDate(s, '-')
 }
 
-export async function signIn(email, password, options = {}) {
+export async function signIn(email, password) {
   console.log('🔐 Attempting sign in for:', email)
   
   try {
@@ -63,15 +62,6 @@ export async function signIn(email, password, options = {}) {
       throw error
     }
     
-    // Ensure the session is available before inserting login logs
-    const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
-    if (sessionError) {
-      console.warn('⚠️ Failed to get session after sign in:', sessionError.message)
-    }
-    if (!sessionData?.session) {
-      console.warn('⚠️ Supabase session is not available immediately after sign-in')
-    }
-
     console.log('✅ Sign in successful for:', email)
     
     // 4. Get profile after successful sign in for additional validation
@@ -97,51 +87,6 @@ export async function signIn(email, password, options = {}) {
     }
     
     console.log('✅ Profile loaded:', profile.email)
-
-    const emergency = typeof window !== 'undefined' && window.localStorage && window.localStorage.getItem('emergency_bypass')
-    const logPayload = {
-      userId:      data.user?.id,
-      email:       profile.email,
-      fullName:    profile.full_name,
-      role:        profile.role,
-      userAgent:   options.userAgent || (typeof navigator !== 'undefined' ? navigator.userAgent : null),
-      loginType:   options.loginType || (emergency ? 'emergency' : 'trustgate'),
-      location:    options.location,
-      deviceId:    options.deviceId || null,
-      designation: options.designation || null,
-      org:         options.org || null,
-      deviceName:  options.deviceName || null,
-      browser:     options.browser || null,
-      os:          options.os || null,
-      ipAddress:   options.ipAddress || null,
-      city:        options.city || null,
-      region:      options.region || null,
-      country:     options.country || null,
-    }
-
-    const insertLogin = async (geo = {}) => {
-      try {
-        await insertLoginLog({ ...logPayload, ...geo })
-      } catch (insertError) {
-        console.error('❌ Login log insert failed:', insertError)
-      }
-    }
-
-    if (logPayload.location || logPayload.city || logPayload.region || logPayload.country) {
-      insertLogin().finally(() => {
-        try { if (emergency) window.localStorage.removeItem('emergency_bypass') } catch (e) { /* ignore */ }
-      })
-    } else {
-      fetchGeoLocation()
-        .then(geo => insertLogin(geo))
-        .catch(err => {
-          console.error('[loginLogs] geo fetch failed:', err)
-          insertLogin()
-        })
-        .finally(() => {
-          try { if (emergency) window.localStorage.removeItem('emergency_bypass') } catch (e) { /* ignore */ }
-        })
-    }
 
     return { data, error: null }
 

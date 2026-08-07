@@ -12,8 +12,6 @@ export function AuthProvider({ children }) {
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
   const profileLoadingRef = useRef(false)
-  const lastUserIdRef = useRef(null)
-  const logoutStampInProgressRef = useRef(false)
   const { applyProfileTheme, applyProfileFont } = useTheme()
 
   // Function to load and validate profile with deduplication
@@ -140,15 +138,7 @@ export function AuthProvider({ children }) {
       if (mounted) {
         setSession(newSession)
         setUser(newSession?.user ?? null)
-        if (newSession?.user?.id) {
-          lastUserIdRef.current = newSession.user.id
-        }
 
-        if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
-          console.log('🔔 Auth state sign-out event detected, stamping logout for user:', lastUserIdRef.current)
-          await ensureLogoutStamped(lastUserIdRef.current)
-        }
-        
         // Only load profile on INITIAL_SESSION to avoid race conditions on SIGNED_IN
         if (event === 'INITIAL_SESSION' && newSession?.user) {
           console.log('⏳ Loading profile on initial session...')
@@ -182,22 +172,9 @@ export function AuthProvider({ children }) {
     return result.data
   }
 
-  const ensureLogoutStamped = async (userId) => {
-    if (!userId || logoutStampInProgressRef.current) return
-    logoutStampInProgressRef.current = true
-    try {
-      await stampLogout(userId)
-    } catch (err) {
-      console.error('Logout stamp failed:', err)
-    } finally {
-      logoutStampInProgressRef.current = false
-    }
-  }
-
   const signOut = async () => {
     console.log('🔓 AuthContext.signOut called')
-    const userId = user?.id || session?.user?.id || lastUserIdRef.current
-    await ensureLogoutStamped(userId)
+    if (user?.id) await stampLogout(user.id)
     const { error } = await supabase.auth.signOut()
     if (error) {
       console.error('Sign out error:', error)

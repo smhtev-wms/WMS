@@ -1,56 +1,240 @@
-﻿import { useAuth } from '../lib/AuthContext'
-import { LayoutDashboard } from 'lucide-react'
+﻿import { useEffect, useState, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../lib/AuthContext'
+import { supabase } from '../lib/supabase'
+import { ROLE_LABELS } from '../lib/auth'
+import { loadChurchSettings, getChurchFlags } from '../lib/churchSettings'
+import {
+  LayoutDashboard, Landmark, Wallet, Building, UserCog, Upload,
+  LogIn, Users, ChevronRight, Sparkles,
+} from 'lucide-react'
+
+function greetingForHour(h) {
+  if (h < 12) return 'Good morning'
+  if (h < 17) return 'Good afternoon'
+  return 'Good evening'
+}
+
+function displayName(profile) {
+  return profile?.nickname?.trim()
+    || profile?.full_name?.trim()
+    || profile?.email?.split('@')[0]
+    || 'there'
+}
 
 export default function DashboardPage() {
-  const { session, loading: authLoading } = useAuth()
+  const navigate = useNavigate()
+  const { session, profile, loading: authLoading } = useAuth()
+  const [churchName, setChurchName] = useState('')
+  const [flags, setFlags] = useState({ accountingEnabled: false, simpleAccountingEnabled: false })
+  const [stats, setStats] = useState({ members: null, users: null })
+  const [statsLoading, setStatsLoading] = useState(true)
+
+  const isSuperAdmin = profile?.role === 'super_admin'
+  const isAdmin = ['super_admin', 'admin', 'admin1'].includes(profile?.role)
+  const roleLabel = ROLE_LABELS[profile?.role] || profile?.role || ''
+
+  const greeting = useMemo(() => greetingForHour(new Date().getHours()), [])
+
+  useEffect(() => {
+    loadChurchSettings().then(({ data }) => {
+      const name = data?.church_name || data?.company_name || ''
+      setChurchName(name)
+      setFlags(getChurchFlags(data))
+    })
+  }, [])
+
+  useEffect(() => {
+    if (!session || !isAdmin) {
+      setStatsLoading(false)
+      return
+    }
+    let cancelled = false
+    async function loadStats() {
+      setStatsLoading(true)
+      try {
+        const tasks = [
+          supabase.from('members').select('*', { count: 'exact', head: true }),
+        ]
+        if (isSuperAdmin) {
+          tasks.push(supabase.from('profiles').select('*', { count: 'exact', head: true }))
+        }
+        const results = await Promise.all(tasks)
+        if (cancelled) return
+        setStats({
+          members: results[0].error ? null : (results[0].count ?? 0),
+          users: results[1] ? (results[1].error ? null : (results[1].count ?? 0)) : null,
+        })
+      } finally {
+        if (!cancelled) setStatsLoading(false)
+      }
+    }
+    loadStats()
+    return () => { cancelled = true }
+  }, [session, isAdmin, isSuperAdmin])
+
+  const quickLinks = useMemo(() => {
+    const links = []
+    if (isAdmin && flags.accountingEnabled) {
+      links.push({
+        label: 'Accounts',
+        desc: 'Ledger, vouchers & statements',
+        path: '/accounting',
+        icon: Landmark,
+        tone: 'blue',
+      })
+    }
+    if (isAdmin && flags.simpleAccountingEnabled) {
+      links.push({
+        label: 'Simple Accounts',
+        desc: 'Cash book & day-to-day entries',
+        path: '/simple-accounts',
+        icon: Wallet,
+        tone: 'green',
+      })
+    }
+    if (isSuperAdmin) {
+      links.push(
+        { label: 'Company Setup', desc: 'Church profile & preferences', path: '/company-setup', icon: Building, tone: 'slate' },
+        { label: 'Users', desc: 'Roles and access control', path: '/users', icon: UserCog, tone: 'violet' },
+        { label: 'Import Data', desc: 'Bulk load members & records', path: '/import', icon: Upload, tone: 'amber' },
+      )
+    }
+    if (isAdmin) {
+      links.push(
+        { label: 'Login Details', desc: 'Sign-in history & devices', path: '/login-logs', icon: LogIn, tone: 'slate' },
+      )
+    }
+    return links
+  }, [isAdmin, isSuperAdmin, flags])
 
   if (authLoading) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 400, flexDirection: 'column', gap: 14 }}>
-        <div style={{ width: 40, height: 40, border: '3px solid var(--card-border)', borderTop: '3px solid var(--accent)', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-        <p style={{ color: 'var(--text-3)', fontSize: 13 }}>Authenticating…</p>
+      <div className="dashboard-loading">
+        <div className="dashboard-spinner" />
+        <p>Loading your workspace…</p>
       </div>
     )
   }
 
   if (!session) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 400, flexDirection: 'column', gap: 12 }}>
+      <div className="dashboard-loading">
         <LayoutDashboard size={44} color="var(--text-3)" />
-        <p style={{ color: 'var(--text-3)' }}>Please log in to view the dashboard.</p>
+        <p>Please log in to view the dashboard.</p>
       </div>
     )
   }
 
   return (
-    <div className="animate-fade-in" style={{ paddingBottom: 32 }}>
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexWrap: 'wrap',
-        gap: 12,
-        marginBottom: 24,
-        paddingBottom: 20,
-        borderBottom: '1px solid var(--card-border)',
-      }}>
-        <div>
-          <h2 className="page-title" style={{ display: 'flex', alignItems: 'center', gap: 8, margin: 0, lineHeight: 1.2 }}>
-            <LayoutDashboard size={20} style={{ color: 'var(--accent)', flexShrink: 0 }} />
-            Dashboard
-          </h2>
-          <p style={{ fontSize: 12, color: 'var(--text-3)', margin: '3px 0 0' }}>
-            This dashboard has been refreshed with new content.
+    <div className="animate-fade-in dashboard-page">
+      <section className="dashboard-hero" style={{ animationDelay: '0ms' }}>
+        <div className="dashboard-hero-content">
+          <p className="dashboard-hero-kicker">
+            <Sparkles size={14} aria-hidden />
+            {greeting}
+          </p>
+          <h1 className="dashboard-hero-title">{displayName(profile)}</h1>
+          <p className="dashboard-hero-sub">
+            {churchName ? (
+              <>Welcome to <strong>{churchName}</strong></>
+            ) : (
+              'Welcome to your church management workspace'
+            )}
+            {roleLabel && (
+              <span className="dashboard-role-pill">{roleLabel}</span>
+            )}
           </p>
         </div>
-      </div>
+        <div className="dashboard-hero-badge" aria-hidden>
+          <LayoutDashboard size={28} />
+        </div>
+      </section>
 
-      <div className="card" style={{ padding: '24px 22px' }}>
-        <h3 style={{ margin: 0, fontSize: 16, color: 'var(--text-1)' }}>New Dashboard Content</h3>
-        <p style={{ margin: '10px 0 0', color: 'var(--text-3)', fontSize: 13, lineHeight: 1.7 }}>
-          The previous finance cards have been removed. This page now shows the refreshed dashboard view.
-        </p>
-      </div>
+      {isAdmin && (
+        <div className="stat-grid">
+          <div className="stat-tile animate-slide-up" style={{ animationDelay: '40ms' }}>
+            <div className="stat-tile-icon" data-tone="blue">
+              <Users size={18} />
+            </div>
+            <div>
+              <p className="stat-tile-label">Members</p>
+              {statsLoading
+                ? <div className="loading-skeleton stat-tile-value-skeleton" />
+                : <p className="stat-tile-value">{stats.members ?? '—'}</p>
+              }
+            </div>
+          </div>
+          {isSuperAdmin && (
+            <div className="stat-tile animate-slide-up" style={{ animationDelay: '80ms' }}>
+              <div className="stat-tile-icon" data-tone="violet">
+                <UserCog size={18} />
+              </div>
+              <div>
+                <p className="stat-tile-label">System users</p>
+                {statsLoading
+                  ? <div className="loading-skeleton stat-tile-value-skeleton" />
+                  : <p className="stat-tile-value">{stats.users ?? '—'}</p>
+                }
+              </div>
+            </div>
+          )}
+          <div className="stat-tile animate-slide-up" style={{ animationDelay: '120ms' }}>
+            <div className="stat-tile-icon" data-tone="green">
+              <Landmark size={18} />
+            </div>
+            <div>
+              <p className="stat-tile-label">Finance modules</p>
+              <p className="stat-tile-value stat-tile-value-sm">
+                {[flags.accountingEnabled && 'Accounts', flags.simpleAccountingEnabled && 'Simple'].filter(Boolean).join(' · ') || 'None enabled'}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {quickLinks.length > 0 && (
+        <section className="dashboard-section animate-slide-up" style={{ animationDelay: '160ms' }}>
+          <div className="page-header" style={{ marginBottom: 18, paddingBottom: 0, border: 'none' }}>
+            <div>
+              <h2 className="page-title" style={{ fontSize: 18 }}>Quick access</h2>
+              <p className="page-subtitle">Jump to the areas you use most</p>
+            </div>
+          </div>
+          <div className="quick-link-grid">
+            {quickLinks.map(link => {
+              const Icon = link.icon
+              return (
+                <button
+                  key={link.path}
+                  type="button"
+                  className="quick-link-card hover-lift"
+                  data-tone={link.tone}
+                  onClick={() => navigate(link.path)}
+                >
+                  <div className="quick-link-card-top">
+                    <span className="quick-link-icon">
+                      <Icon size={18} />
+                    </span>
+                    <ChevronRight size={16} className="quick-link-arrow" />
+                  </div>
+                  <span className="quick-link-label">{link.label}</span>
+                  <span className="quick-link-desc">{link.desc}</span>
+                </button>
+              )
+            })}
+          </div>
+        </section>
+      )}
+
+      {!isAdmin && (
+        <div className="card dashboard-tip animate-slide-up" style={{ animationDelay: '80ms', padding: '22px 24px' }}>
+          <h3 className="card-title" style={{ fontSize: 15, marginBottom: 8 }}>Your dashboard</h3>
+          <p style={{ margin: 0, fontSize: 13, color: 'var(--text-2)', lineHeight: 1.65 }}>
+            Use the menu when additional modules are assigned to your role. Contact your church administrator if you need access to finance or admin tools.
+          </p>
+        </div>
+      )}
     </div>
   )
 }
