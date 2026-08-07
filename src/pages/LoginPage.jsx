@@ -56,7 +56,7 @@ export default function LoginPage() {
   )
 
   useEffect(() => {
-    if (session) navigate('/dashboard')  // already logged in — redirect immediately
+    if (session) navigate('/quick-access')
     getChurch().then(setOrganization)
   }, []) // eslint-disable-line
 

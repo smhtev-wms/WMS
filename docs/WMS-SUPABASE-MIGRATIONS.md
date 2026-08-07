@@ -13,6 +13,7 @@ Run each file in the **Supabase SQL editor** (or `supabase db push`) on your **p
 | 7 | `20260807220000_wms_phase3.sql` | 3 — Tooling, tenders, PM, correspondence |
 | 8 | `20260807230000_wms_phase4.sql` | 4 — Costing, receivables, attendance |
 | 9 | `20260807240000_wms_phase5.sql` | 5 — Audit, RBAC, notifications |
+| 10 | `20260808120000_profiles_wms_quick_access.sql` | Quick Access layout on `profiles` |
 
 After applying, sign in as an admin and use **Commercial → Notifications → Refresh alerts** once to populate system notifications.
 

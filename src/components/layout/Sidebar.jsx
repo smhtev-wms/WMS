@@ -5,7 +5,7 @@ import { useWmsRbac } from '../../lib/WmsRbacContext'
 import { supabase } from '../../lib/supabase'
 import { getChurchFlags, loadChurchSettings } from '../../lib/churchSettings'
 import { ChevronLeft, ChevronRight, ChevronDown,
-  LayoutDashboard, Users, FileText, IndianRupee,
+  LayoutGrid, Users, FileText, IndianRupee,
   BarChart3, Megaphone, Building, UserCog, Upload, ClipboardList, LogIn,
   BookOpen, MessageSquare, CreditCard, Send, Landmark,
   PiggyBank, Tag, List, Settings, Wallet, Calendar, BookMarked,
@@ -21,16 +21,7 @@ import { HEADER_H } from './Header'
 
 const NAV = [
   { group: 'MAIN', items: [
-    { label: 'Dashboard',     path: '/dashboard',     icon: LayoutDashboard },
-  ]},
-  { group: 'MASTER DATA', wmsModule: 'masters', items: [
-    { label: 'Customers',       path: '/masters/customers',      icon: Users },
-    { label: 'Items / Parts',   path: '/masters/items',          icon: Package },
-    { label: 'Materials',       path: '/masters/materials',      icon: Layers },
-    { label: 'Machines',        path: '/masters/machines',       icon: Cog },
-    { label: 'Operators',       path: '/masters/operators',      icon: UserCog },
-    { label: 'Subcontractors',  path: '/masters/subcontractors', icon: Truck },
-    { label: 'Tooling & Gauges', path: '/masters/tooling',       icon: Wrench },
+    { label: 'Quick Access',  path: '/quick-access',  icon: LayoutGrid },
   ]},
   { group: 'ORDERS', wmsModule: 'orders', items: [
     { label: 'Enquiries / RFQ',   path: '/orders/enquiries',          icon: MessageSquare },
@@ -78,6 +69,15 @@ const NAV = [
   { group: 'FINANCE', adminOnly: true, items: [
     { label: 'Accounts',          path: '/accounting',        icon: Landmark,    accountingOnly: true },
     { label: 'Simple Accounts',   path: '/simple-accounts',   icon: Wallet,      simpleOnly: true },
+  ]},
+  { group: 'MASTER DATA', wmsModule: 'masters', items: [
+    { label: 'Customers',       path: '/masters/customers',      icon: Users },
+    { label: 'Items / Parts',   path: '/masters/items',          icon: Package },
+    { label: 'Materials',       path: '/masters/materials',      icon: Layers },
+    { label: 'Machines',        path: '/masters/machines',       icon: Cog },
+    { label: 'Operators',       path: '/masters/operators',      icon: UserCog },
+    { label: 'Subcontractors',  path: '/masters/subcontractors', icon: Truck },
+    { label: 'Tooling & Gauges', path: '/masters/tooling',       icon: Wrench },
   ]},
   { group: 'ADMIN', adminOnly: true, items: [
     { label: 'Company Setup',      path: '/company-setup',    icon: Building,       superOnly: true },

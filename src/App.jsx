@@ -8,7 +8,7 @@ import { fetchCompanionStatus } from './lib/companion'
 
 import AppLayout from './components/layout/AppLayout'
 import LoginPage from './pages/LoginPage'
-import DashboardPage from './pages/DashboardPage'
+import QuickAccessPage from './pages/QuickAccessPage'
 import CompanySetupPage from './pages/CompanySetupPage'
 import UsersPage from './pages/UsersPage'
 import ImportPage from './pages/ImportPage'
@@ -536,7 +536,7 @@ function PublicRoute({ children }) {
     )
   }
 
-  if (session && canRedirect) return <Navigate to="/dashboard" replace />
+  if (session && canRedirect) return <Navigate to="/quick-access" replace />
 
   return children
 }
@@ -630,13 +630,12 @@ function AppRoutes() {
     )}
     <Routes>
       <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
-
+      <Route path="/" element={<Navigate to="/quick-access" replace />} />
       <Route
-        path="/dashboard"
+        path="/quick-access"
         element={
           <PrivateRoute>
-            <AppLayout><DashboardPage /></AppLayout>
+            <AppLayout><QuickAccessPage /></AppLayout>
           </PrivateRoute>
         }
       />
@@ -782,7 +781,7 @@ function AppRoutes() {
       <Route path="/simple-accounts/reports"      element={<PrivateRoute><AppLayout><SimpleReportsPage /></AppLayout></PrivateRoute>} />
       <Route path="/simple-accounts/settings"     element={<PrivateRoute><AppLayout><SimpleAccountsSettingsPage /></AppLayout></PrivateRoute>} />
 
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      <Route path="*" element={<Navigate to="/quick-access" replace />} />
     </Routes>
     </>
   )
