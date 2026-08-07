@@ -31,8 +31,8 @@ echo Staging all changes...
 git add -A
 
 :: Commit
-necho Committing: %MSG%
-ngit commit -m "%MSG%"
+echo Committing: %MSG%
+git commit -m "%MSG%"
 if errorlevel 1 (
   echo Commit failed (maybe nothing to commit or commit hook failed). Aborting.
   popd

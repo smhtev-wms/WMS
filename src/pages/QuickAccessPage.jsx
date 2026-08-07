@@ -109,26 +109,26 @@ function QuickAccessPasswordConfirmModal({
 
 function buildQuickLinks({ role, canRead, isAdmin, isSuperAdmin, flags }) {
   const wmsLinks = [
-    { label: 'Customers', desc: 'BHEL & allied customer master', path: '/masters/customers', icon: Users, tone: 'blue', module: 'masters' },
-    { label: 'Items / Parts', desc: 'Drawings, revisions, UOM', path: '/masters/items', icon: Package, tone: 'violet', module: 'masters' },
-    { label: 'Materials', desc: 'Raw material grades & specs', path: '/masters/materials', icon: Layers, tone: 'green', module: 'masters' },
-    { label: 'Machines', desc: 'Shop equipment registry', path: '/masters/machines', icon: Cog, tone: 'amber', module: 'masters' },
-    { label: 'Job cards', desc: 'Shop floor work orders', path: '/shop/job-cards', icon: Briefcase, tone: 'blue', module: 'shop' },
-    { label: 'DPR', desc: 'Daily production reporting', path: '/shop/dpr', icon: ClipboardCheck, tone: 'violet', module: 'shop' },
-    { label: 'Purchase orders', desc: 'Customer POs & line items', path: '/orders/purchase-orders', icon: FileText, tone: 'blue', module: 'orders' },
-    { label: 'Order status', desc: 'Lifecycle & overdue deliveries', path: '/orders/status', icon: Activity, tone: 'green', module: 'orders' },
-    { label: 'Inspections', desc: 'In-process & final QC records', path: '/quality/inspections', icon: ClipboardCheck, tone: 'violet', module: 'quality' },
-    { label: 'NCR', desc: 'Non-conformance & corrective action', path: '/quality/ncr', icon: AlertTriangle, tone: 'amber', module: 'quality' },
-    { label: 'Dispatch notes', desc: 'Delivery challans against PO lines', path: '/dispatch/notes', icon: Truck, tone: 'blue', module: 'dispatch' },
-    { label: 'Drawing revisions', desc: 'Revision log & item updates', path: '/engineering/drawing-revisions', icon: FileDiff, tone: 'green', module: 'engineering' },
-    { label: 'Tender alerts', desc: 'Submission deadlines & status', path: '/commercial/tenders', icon: Megaphone, tone: 'amber', module: 'commercial' },
-    { label: 'Correspondence', desc: 'Customer letters & follow-ups', path: '/commercial/correspondence', icon: Mail, tone: 'violet', module: 'commercial' },
-    { label: 'PM maintenance', desc: 'Preventive schedules & logs', path: '/maintenance', icon: Settings, tone: 'slate', module: 'maintenance' },
-    { label: 'Executive dashboard', desc: 'Workshop KPIs at a glance', path: '/insights/executive', icon: BarChart2, tone: 'blue', module: 'insights' },
-    { label: 'Job costing', desc: 'Margin by job card', path: '/insights/job-costing', icon: IndianRupee, tone: 'green', module: 'insights' },
-    { label: 'Payment ageing', desc: 'Customer invoice outstanding', path: '/insights/receivables', icon: CreditCard, tone: 'amber', module: 'insights' },
-    { label: 'Attendance', desc: 'Operator presence (HR-lite)', path: '/hr/attendance', icon: UserCheck, tone: 'violet', module: 'hr' },
-    { label: 'Notifications', desc: 'Alerts & overdue items', path: '/notifications', icon: Bell, tone: 'blue', module: 'commercial' },
+    { label: 'Customers', desc: 'BHEL & allied customer master', path: '/masters/customers', icon: Users, module: 'masters' },
+    { label: 'Items / Parts', desc: 'Drawings, revisions, UOM', path: '/masters/items', icon: Package, module: 'masters' },
+    { label: 'Materials', desc: 'Raw material grades & specs', path: '/masters/materials', icon: Layers, module: 'masters' },
+    { label: 'Machines', desc: 'Shop equipment registry', path: '/masters/machines', icon: Cog, module: 'masters' },
+    { label: 'Job cards', desc: 'Shop floor work orders', path: '/shop/job-cards', icon: Briefcase, module: 'shop' },
+    { label: 'DPR', desc: 'Daily production reporting', path: '/shop/dpr', icon: ClipboardCheck, module: 'shop' },
+    { label: 'Purchase orders', desc: 'Customer POs & line items', path: '/orders/purchase-orders', icon: FileText, module: 'orders' },
+    { label: 'Order status', desc: 'Lifecycle & overdue deliveries', path: '/orders/status', icon: Activity, module: 'orders' },
+    { label: 'Inspections', desc: 'In-process & final QC records', path: '/quality/inspections', icon: ClipboardCheck, module: 'quality' },
+    { label: 'NCR', desc: 'Non-conformance & corrective action', path: '/quality/ncr', icon: AlertTriangle, module: 'quality' },
+    { label: 'Dispatch notes', desc: 'Delivery challans against PO lines', path: '/dispatch/notes', icon: Truck, module: 'dispatch' },
+    { label: 'Drawing revisions', desc: 'Revision log & item updates', path: '/engineering/drawing-revisions', icon: FileDiff, module: 'engineering' },
+    { label: 'Tender alerts', desc: 'Submission deadlines & status', path: '/commercial/tenders', icon: Megaphone, module: 'commercial' },
+    { label: 'Correspondence', desc: 'Customer letters & follow-ups', path: '/commercial/correspondence', icon: Mail, module: 'commercial' },
+    { label: 'PM maintenance', desc: 'Preventive schedules & logs', path: '/maintenance', icon: Settings, module: 'maintenance' },
+    { label: 'Executive dashboard', desc: 'Workshop KPIs at a glance', path: '/insights/executive', icon: BarChart2, module: 'insights' },
+    { label: 'Job costing', desc: 'Margin by job card', path: '/insights/job-costing', icon: IndianRupee, module: 'insights' },
+    { label: 'Payment ageing', desc: 'Customer invoice outstanding', path: '/insights/receivables', icon: CreditCard, module: 'insights' },
+    { label: 'Attendance', desc: 'Operator presence (HR-lite)', path: '/hr/attendance', icon: UserCheck, module: 'hr' },
+    { label: 'Notifications', desc: 'Alerts & overdue items', path: '/notifications', icon: Bell, module: 'commercial' },
   ]
   const links = wmsLinks.filter(l => canRead(role, l.module))
   if (isAdmin && flags.accountingEnabled) {
@@ -137,7 +137,6 @@ function buildQuickLinks({ role, canRead, isAdmin, isSuperAdmin, flags }) {
       desc: 'Ledger, vouchers & statements',
       path: '/accounting',
       icon: Landmark,
-      tone: 'blue',
     })
   }
   if (isAdmin && flags.simpleAccountingEnabled) {
@@ -146,19 +145,18 @@ function buildQuickLinks({ role, canRead, isAdmin, isSuperAdmin, flags }) {
       desc: 'Cash book & day-to-day entries',
       path: '/simple-accounts',
       icon: Wallet,
-      tone: 'green',
     })
   }
   if (isSuperAdmin) {
     links.push(
-      { label: 'Company Setup', desc: 'Church profile & preferences', path: '/company-setup', icon: Building, tone: 'slate' },
-      { label: 'Users', desc: 'Roles and access control', path: '/users', icon: UserCog, tone: 'violet' },
-      { label: 'Import Data', desc: 'Bulk load members & records', path: '/import', icon: Upload, tone: 'amber' },
+      { label: 'Company Setup', desc: 'Church profile & preferences', path: '/company-setup', icon: Building },
+      { label: 'Users', desc: 'Roles and access control', path: '/users', icon: UserCog },
+      { label: 'Import Data', desc: 'Bulk load members & records', path: '/import', icon: Upload },
     )
   }
   if (isAdmin) {
     links.push(
-      { label: 'Login Details', desc: 'Sign-in history & devices', path: '/login-logs', icon: LogIn, tone: 'slate' },
+      { label: 'Login Details', desc: 'Sign-in history & devices', path: '/login-logs', icon: LogIn },
     )
   }
   return links
@@ -186,7 +184,6 @@ function QuickLinkCard({ link, onNavigate, disabled, dragHandle }) {
       <button
         type="button"
         className="quick-link-card hover-lift"
-        data-tone={link.tone}
         data-disabled={disabled || undefined}
         disabled={disabled}
         onClick={() => !disabled && onNavigate(link.path)}
@@ -490,7 +487,7 @@ function QuickAccessGroupPanel({
                       className="quick-access-order-item-body"
                       onClick={() => onNavigate(link.path)}
                     >
-                      <span className="quick-access-order-item-icon" data-tone={link.tone || 'slate'}>
+                      <span className="quick-access-order-item-icon">
                         <Icon size={15} />
                       </span>
                       <span className="quick-access-order-item-label">{link.label}</span>
@@ -518,7 +515,7 @@ function QuickAccessGroupPanel({
 
 export default function QuickAccessPage() {
   const navigate = useNavigate()
-  const { session, profile, loading: authLoading } = useAuth()
+  const { session, profile, loading: authLoading, refreshProfile } = useAuth()
   const { canRead } = useWmsRbac()
   const [flags, setFlags] = useState({ accountingEnabled: false, simpleAccountingEnabled: false })
   const [layout, setLayout] = useState({
@@ -533,6 +530,10 @@ export default function QuickAccessPage() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [confirmPasswordError, setConfirmPasswordError] = useState(false)
   const [confirmBusy, setConfirmBusy] = useState(false)
+  const [layoutSyncError, setLayoutSyncError] = useState(null)
+  const [layoutHydrating, setLayoutHydrating] = useState(true)
+  const layoutHydratedForUser = useRef(null)
+  const pendingSaveRef = useRef(null)
   const isSuperAdmin = profile?.role === 'super_admin'
   const isAdmin = ['super_admin', 'admin', 'admin1'].includes(profile?.role)
 
@@ -617,29 +618,123 @@ export default function QuickAccessPage() {
   }, [organizePanelPinned, organizePanelOpen])
 
   useEffect(() => {
+    if (authLoading) return undefined
+    if (!session?.user?.id) {
+      setLayoutHydrating(false)
+      return undefined
+    }
+    if (!profile) return undefined
+    if (layoutHydratedForUser.current === userId) return undefined
+
     let cancelled = false
-    async function loadLayout() {
-      let merged = null
-      const profileLayout = profile?.wms_quick_access
-      if (profileLayout && typeof profileLayout === 'object') {
-        merged = mergeQuickLinksIntoGroups(quickLinks, profileLayout)
-      } else if (userId) {
-        try {
-          const remote = await loadQuickAccessFromProfile(userId)
-          if (remote) merged = mergeQuickLinksIntoGroups(quickLinks, remote)
-        } catch (e) {
-          console.warn('Quick Access profile load failed:', e.message)
+    async function hydrateLayout() {
+      setLayoutHydrating(true)
+      setLayoutSyncError(null)
+
+      let remoteLayout = null
+      if (userId) {
+        const { layout, error, missingColumn } = await loadQuickAccessFromProfile(userId)
+        if (error) {
+          if (!cancelled) {
+            setLayoutSyncError(
+              missingColumn
+                ? 'Cloud save is unavailable until migration 20260808120000_profiles_wms_quick_access.sql is applied on Supabase (profiles.wms_quick_access).'
+                : (error.message || 'Could not load Quick Access from your profile.'),
+            )
+          }
+        } else {
+          remoteLayout = layout
         }
       }
-      if (!merged) {
-        const local = loadQuickAccessLayoutLocal(orderStorageKey)
+
+      let merged = null
+      if (remoteLayout && typeof remoteLayout === 'object') {
+        merged = mergeQuickLinksIntoGroups(quickLinks, remoteLayout)
+      } else if (profile?.wms_quick_access && typeof profile.wms_quick_access === 'object') {
+        merged = mergeQuickLinksIntoGroups(quickLinks, profile.wms_quick_access)
+      }
+
+      const local = loadQuickAccessLayoutLocal(orderStorageKey)
+      if (!merged && local) {
         merged = mergeQuickLinksIntoGroups(quickLinks, local)
       }
-      if (!cancelled) setLayout(merged)
+
+      if (!merged) {
+        merged = mergeQuickLinksIntoGroups(quickLinks, null)
+      } else if (userId && !remoteLayout && local) {
+        const packed = packQuickAccessLayout(
+          merged.groups,
+          merged.groupOrder,
+          merged.disabledPaths,
+          merged.disabledGroupIds,
+        )
+        const { ok, error, missingColumn } = await saveQuickAccessToProfile(userId, packed)
+        if (!ok && !cancelled) {
+          setLayoutSyncError(
+            missingColumn
+              ? 'Layout is only on this device until migration 20260808120000_profiles_wms_quick_access.sql is applied on Supabase.'
+              : (error?.message || 'Could not sync Quick Access to your profile.'),
+          )
+        } else if (ok) {
+          refreshProfile?.()
+        }
+      }
+
+      if (!cancelled) {
+        setLayout(merged)
+        layoutHydratedForUser.current = userId
+        setLayoutHydrating(false)
+      }
     }
-    loadLayout()
+
+    hydrateLayout()
     return () => { cancelled = true }
-  }, [quickLinks, orderStorageKey, userId, profile?.wms_quick_access])
+  }, [authLoading, session?.user?.id, userId, orderStorageKey, profile, quickLinks, refreshProfile])
+
+  useEffect(() => {
+    if (authLoading || layoutHydrating) return
+    if (!layoutHydratedForUser.current) return
+    setLayout(prev => {
+      if (!prev.groups?.length) return mergeQuickLinksIntoGroups(quickLinks, null)
+      return mergeQuickLinksIntoGroups(
+        quickLinks,
+        packQuickAccessLayout(
+          prev.groups,
+          prev.groupOrder,
+          prev.disabledPaths,
+          prev.disabledGroupIds,
+        ),
+      )
+    })
+  }, [quickLinks, authLoading, layoutHydrating])
+
+  useEffect(() => {
+    if (layoutHydratedForUser.current && layoutHydratedForUser.current !== userId) {
+      layoutHydratedForUser.current = null
+    }
+  }, [userId])
+
+  const flushCloudSave = useCallback(async () => {
+    if (!userId || !pendingSaveRef.current) return
+    const packed = pendingSaveRef.current
+    pendingSaveRef.current = null
+    const { ok, error, missingColumn } = await saveQuickAccessToProfile(userId, packed)
+    if (!ok) {
+      setLayoutSyncError(
+        missingColumn
+          ? 'Cloud save failed: apply migration 20260808120000_profiles_wms_quick_access.sql on Supabase.'
+          : (error?.message || 'Could not save Quick Access to your profile.'),
+      )
+      return
+    }
+    setLayoutSyncError(null)
+    refreshProfile?.()
+  }, [userId, refreshProfile])
+
+  useEffect(() => () => {
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
+    flushCloudSave()
+  }, [flushCloudSave])
 
   const persistLayout = useCallback((next) => {
     const packed = packQuickAccessLayout(
@@ -650,13 +745,13 @@ export default function QuickAccessPage() {
     )
     saveQuickAccessLayoutLocal(orderStorageKey, packed)
     if (!userId) return
+    pendingSaveRef.current = packed
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
     saveTimerRef.current = setTimeout(() => {
-      saveQuickAccessToProfile(userId, packed).catch(e => {
-        console.warn('Quick Access save failed:', e.message)
-      })
+      saveTimerRef.current = null
+      flushCloudSave()
     }, 500)
-  }, [orderStorageKey, userId])
+  }, [orderStorageKey, userId, flushCloudSave])
 
   const commitLayout = useCallback((updater) => {
     setLayout(prev => {
@@ -786,7 +881,7 @@ export default function QuickAccessPage() {
   const hasAnyLayout = layout.groups.some(g => g.paths.length > 0)
   const hasEnabledTiles = canvasGroups.length > 0
 
-  if (authLoading) {
+  if (authLoading || layoutHydrating) {
     return (
       <div className="quick-access-loading">
         <div className="quick-access-spinner" />
@@ -816,6 +911,14 @@ export default function QuickAccessPage() {
         onClose={closeConfirmModal}
         onConfirm={handleConfirmDestructive}
       />
+      {layoutSyncError && (
+        <div className="quick-access-sync-banner" role="status">
+          <p>{layoutSyncError}</p>
+          <button type="button" className="quick-access-sync-banner-dismiss" onClick={() => setLayoutSyncError(null)}>
+            Dismiss
+          </button>
+        </div>
+      )}
       <div
         className={`quick-access-layout${organizePanelOpen ? '' : ' quick-access-layout--panel-closed'}`}
       >

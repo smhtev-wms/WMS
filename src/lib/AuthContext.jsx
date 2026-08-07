@@ -3,6 +3,7 @@ import { supabase, adminSupabase } from './supabase'
 import { getProfile, signIn as authSignIn } from './auth'
 import { useTheme } from './ThemeContext'
 import { stampLogout } from './loginLogs'
+import { quickAccessLayoutStorageKey } from './quickAccessLayoutLib'
 
 const AuthContext = createContext(null)
 
@@ -54,7 +55,36 @@ export function AuthProvider({ children }) {
       
       console.log('✅ Profile loaded successfully:', data?.email)
       console.log('ℹ️ Profile avatar_name:', data?.avatar_name)
-      setProfile(data)
+
+      let profileData = data
+      if (data?.id && !data?.wms_quick_access) {
+        try {
+          const qaKey = quickAccessLayoutStorageKey(data.id)
+          const raw = localStorage.getItem(qaKey)
+          if (raw) {
+            const layout = JSON.parse(raw)
+            const { data: updated, error: qaError } = await supabase
+              .from('profiles')
+              .update({
+                wms_quick_access: layout,
+                updated_at: new Date().toISOString(),
+              })
+              .eq('id', data.id)
+              .select('wms_quick_access')
+              .maybeSingle()
+            if (!qaError && updated?.wms_quick_access) {
+              profileData = { ...data, wms_quick_access: updated.wms_quick_access }
+              console.log('✅ Quick Access layout synced from device to profile')
+            } else if (qaError) {
+              console.warn('Quick Access profile sync skipped:', qaError.message)
+            }
+          }
+        } catch (qaSyncErr) {
+          console.warn('Quick Access local → profile sync failed:', qaSyncErr)
+        }
+      }
+
+      setProfile(profileData)
 
       // Theme: DB wins if set; otherwise push localStorage value up to DB so
       // it survives future cache clears.
