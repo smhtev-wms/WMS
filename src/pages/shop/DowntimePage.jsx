@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '../../lib/AuthContext'
 import { useToast } from '../../lib/toast'
-import { canManageMasters, listMachinesBrief } from '../../lib/mastersLib'
+import { listMachinesBrief } from '../../lib/mastersLib'
+import { useWmsModuleAccess } from '../../lib/useWmsModuleAccess'
 import { listDowntimeLogs, saveDowntimeLog } from '../../lib/shopLib'
 import { DOWNTIME_CATEGORIES } from '../../lib/shopConstants'
 import { toLocalInputValue, fromLocalInputValue } from '../../lib/planningConstants'
@@ -20,7 +21,7 @@ const emptyForm = () => ({
 export default function DowntimePage() {
   const { profile } = useAuth()
   const toast = useToast()
-  const canEdit = canManageMasters(profile?.role)
+  const { canEdit } = useWmsModuleAccess('shop')
 
   const [rows, setRows] = useState([])
   const [machines, setMachines] = useState([])

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '../../lib/AuthContext'
 import { useToast } from '../../lib/toast'
-import { canManageMasters } from '../../lib/mastersLib'
+import { useWmsModuleAccess } from '../../lib/useWmsModuleAccess'
 import { listJobCardsBrief, listJobOperationsForCard } from '../../lib/shopLib'
 import { listInspections, saveInspection, suggestInspectionNo } from '../../lib/qualityLib'
 import { fmtDate } from '../../lib/orderConstants'
@@ -30,7 +30,7 @@ const emptyForm = () => ({
 export default function InspectionsPage() {
   const { profile } = useAuth()
   const toast = useToast()
-  const canEdit = canManageMasters(profile?.role)
+  const { canEdit } = useWmsModuleAccess('quality')
   const [rows, setRows] = useState([])
   const [jobs, setJobs] = useState([])
   const [jobOps, setJobOps] = useState([])

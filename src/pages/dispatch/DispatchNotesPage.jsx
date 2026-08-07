@@ -4,12 +4,12 @@ import { listDispatches } from '../../lib/dispatchLib'
 import { fmtDate } from '../../lib/orderConstants'
 import { Loader2, Plus, Truck } from 'lucide-react'
 import { useAuth } from '../../lib/AuthContext'
-import { canManageMasters } from '../../lib/mastersLib'
+import { useWmsModuleAccess } from '../../lib/useWmsModuleAccess'
 
 export default function DispatchNotesPage() {
   const navigate = useNavigate()
   const { profile } = useAuth()
-  const canEdit = canManageMasters(profile?.role)
+  const { canEdit } = useWmsModuleAccess('dispatch')
   const [rows, setRows] = useState([])
   const [loading, setLoading] = useState(true)
 

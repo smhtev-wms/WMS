@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback } from 'react'
 import { useNavigate, useParams, useLocation, Link } from 'react-router-dom'
 import { useAuth } from '../../lib/AuthContext'
 import { useToast } from '../../lib/toast'
-import { canManageMasters, listCustomersBrief, listItemsBrief } from '../../lib/mastersLib'
+import { listCustomersBrief, listItemsBrief } from '../../lib/mastersLib'
+import { useWmsModuleAccess } from '../../lib/useWmsModuleAccess'
 import {
   getPurchaseOrder,
   savePurchaseOrder,
@@ -50,7 +51,7 @@ export default function PurchaseOrderFormPage() {
   const navigate = useNavigate()
   const { profile, user } = useAuth()
   const toast = useToast()
-  const canEdit = canManageMasters(profile?.role)
+  const { canEdit } = useWmsModuleAccess('orders')
 
   const [loading, setLoading] = useState(!isNew && hasValidId)
   const [header, setHeader] = useState(emptyHeader())

@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../lib/AuthContext'
 import { useTheme, THEMES, FONTS } from '../../lib/ThemeContext'
 import { getChurch, LICENSE_CSV, VENDOR, supabase } from '../../lib/supabase'
 import { initials, ROLE_LABELS } from '../../lib/auth'
-import { ChevronDown, LogOut, Edit, Factory } from 'lucide-react'
+import { ChevronDown, LogOut, Edit, Factory, Bell } from 'lucide-react'
+import { countUnreadNotifications } from '../../lib/notificationLib'
 
 export const HEADER_H = 88
 
@@ -370,6 +372,7 @@ function UserBadge({ profile, ini, firstName, roleLabel, g, theme, setTheme, fon
 
 /* ── Header ──────────────────────────────────────────────────── */
 export default function Header({ onEditDevice }) {
+  const navigate = useNavigate()
   const { profile, signOut } = useAuth()
   const { theme, setTheme, font, setFont } = useTheme()
   const [church, setChurch]  = useState(null)
@@ -382,7 +385,17 @@ export default function Header({ onEditDevice }) {
   const [licenseStatus, setLicenseStatus] = useState(null)
   const [licenseInfo, setLicenseInfo] = useState(null)
   const [licenseOpen, setLicenseOpen] = useState(false)
+  const [notifUnread, setNotifUnread] = useState(0)
   const licenseRef = useRef(null)
+
+  useEffect(() => {
+    if (!profile) return
+    let cancelled = false
+    const load = () => countUnreadNotifications().then(n => { if (!cancelled) setNotifUnread(n) })
+    load()
+    const t = setInterval(load, 60_000)
+    return () => { cancelled = true; clearInterval(t) }
+  }, [profile])
 
   useEffect(() => { getChurch().then(setChurch) }, [])
 
@@ -596,6 +609,51 @@ export default function Header({ onEditDevice }) {
         <div style={{ display: 'flex', alignItems: 'center', animation: 'hdrSlideR 0.5s 0.12s ease both' }}>
           <LiveClock g={g} />
           <div style={{ width: 1, height: 36, background: g.divider, flexShrink: 0, margin: '0 16px' }} />
+
+          {['super_admin', 'admin', 'admin1'].includes(profile?.role) && (
+            <button
+              type="button"
+              onClick={() => navigate('/notifications')}
+              aria-label="Notifications"
+              style={{
+                position: 'relative',
+                marginRight: 12,
+                marginBottom: 6,
+                width: 36,
+                height: 36,
+                borderRadius: 10,
+                border: `1px solid ${g.border}`,
+                background: 'rgba(255,255,255,0.06)',
+                color: g.text1,
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Bell size={18} />
+              {notifUnread > 0 && (
+                <span style={{
+                  position: 'absolute',
+                  top: -4,
+                  right: -4,
+                  minWidth: 18,
+                  height: 18,
+                  padding: '0 5px',
+                  borderRadius: 9,
+                  background: '#ef4444',
+                  color: '#fff',
+                  fontSize: 10,
+                  fontWeight: 700,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                  {notifUnread > 99 ? '99+' : notifUnread}
+                </span>
+              )}
+            </button>
+          )}
 
           <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12 }}>
             <UserBadge

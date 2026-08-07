@@ -166,11 +166,12 @@ export const masterConfigs = {
       { key: 'full_name', label: 'Full name', required: true },
       { key: 'designation', label: 'Designation' },
       { key: 'skill_level', label: 'Skill level' },
+      { key: 'hourly_rate', label: 'Hourly rate (₹, for job costing)', placeholder: '150' },
       { key: 'phone', label: 'Phone' },
       { key: 'notes', label: 'Notes', type: 'textarea' },
     ],
     emptyForm: {
-      employee_code: '', full_name: '', designation: '', skill_level: '', phone: '', notes: '',
+      employee_code: '', full_name: '', designation: '', skill_level: '', hourly_rate: '', phone: '', notes: '',
     },
   },
 

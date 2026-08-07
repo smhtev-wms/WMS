@@ -39,6 +39,7 @@ export function nextDocNo(prefix, existing = []) {
   for (const row of existing) {
     const no = row.enquiry_no || row.po_number || row.job_number || row.sheet_code || row.inward_no || row.issue_no
       || row.inspection_no || row.ncr_no || row.dispatch_no
+      || row.tender_no || row.corr_no || row.plan_code || row.invoice_no
     const m = String(no || '').match(pat)
     if (m) max = Math.max(max, parseInt(m[1], 10))
   }

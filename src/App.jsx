@@ -54,7 +54,7 @@ import MaterialsPage              from './pages/masters/MaterialsPage'
 import WmsMachinesPage            from './pages/masters/WmsMachinesPage'
 import OperatorsPage              from './pages/masters/OperatorsPage'
 import SubcontractorsPage         from './pages/masters/SubcontractorsPage'
-import ToolingPlaceholderPage     from './pages/masters/ToolingPlaceholderPage'
+import ToolingPage                  from './pages/masters/ToolingPage'
 import EnquiriesPage              from './pages/orders/EnquiriesPage'
 import PurchaseOrdersPage         from './pages/orders/PurchaseOrdersPage'
 import PurchaseOrderFormPage      from './pages/orders/PurchaseOrderFormPage'
@@ -75,6 +75,17 @@ import NcrPage                      from './pages/quality/NcrPage'
 import DispatchNotesPage            from './pages/dispatch/DispatchNotesPage'
 import DispatchFormPage             from './pages/dispatch/DispatchFormPage'
 import DrawingRevisionsPage         from './pages/engineering/DrawingRevisionsPage'
+import TendersPage                  from './pages/commercial/TendersPage'
+import CorrespondencePage           from './pages/commercial/CorrespondencePage'
+import MaintenancePage              from './pages/maintenance/MaintenancePage'
+import ExecutiveDashboardPage       from './pages/insights/ExecutiveDashboardPage'
+import JobCostingPage               from './pages/insights/JobCostingPage'
+import ReceivablesPage              from './pages/insights/ReceivablesPage'
+import AttendancePage               from './pages/hr/AttendancePage'
+import AuditTrailPage               from './pages/admin/AuditTrailPage'
+import WmsPermissionsPage           from './pages/admin/WmsPermissionsPage'
+import NotificationsPage            from './pages/admin/NotificationsPage'
+import { WmsRbacProvider } from './lib/WmsRbacContext'
 
 console.log('📱 App component rendering')
 
@@ -676,7 +687,7 @@ function AppRoutes() {
       <Route path="/masters/machines"         element={<PrivateRoute><AppLayout><WmsMachinesPage /></AppLayout></PrivateRoute>} />
       <Route path="/masters/operators"       element={<PrivateRoute><AppLayout><OperatorsPage /></AppLayout></PrivateRoute>} />
       <Route path="/masters/subcontractors"  element={<PrivateRoute><AppLayout><SubcontractorsPage /></AppLayout></PrivateRoute>} />
-      <Route path="/masters/tooling"         element={<PrivateRoute><AppLayout><ToolingPlaceholderPage /></AppLayout></PrivateRoute>} />
+      <Route path="/masters/tooling"         element={<PrivateRoute><AppLayout><ToolingPage /></AppLayout></PrivateRoute>} />
 
       {/* ── WMS Orders (Phase 1 Sprint B) ── */}
       <Route path="/orders/enquiries"                    element={<PrivateRoute><AppLayout><EnquiriesPage /></AppLayout></PrivateRoute>} />
@@ -710,6 +721,22 @@ function AppRoutes() {
       <Route path="/dispatch/notes/new"                 element={<PrivateRoute><AppLayout><DispatchFormPage /></AppLayout></PrivateRoute>} />
       <Route path="/dispatch/notes/:id"                 element={<PrivateRoute><AppLayout><DispatchFormPage /></AppLayout></PrivateRoute>} />
       <Route path="/engineering/drawing-revisions"      element={<PrivateRoute><AppLayout><DrawingRevisionsPage /></AppLayout></PrivateRoute>} />
+
+      {/* ── WMS Phase 3: Tooling depth, tenders, PM, correspondence ── */}
+      <Route path="/commercial/tenders"                 element={<PrivateRoute><AppLayout><TendersPage /></AppLayout></PrivateRoute>} />
+      <Route path="/commercial/correspondence"          element={<PrivateRoute><AppLayout><CorrespondencePage /></AppLayout></PrivateRoute>} />
+      <Route path="/maintenance"                        element={<PrivateRoute><AppLayout><MaintenancePage /></AppLayout></PrivateRoute>} />
+
+      {/* ── WMS Phase 4: Costing, receivables, HR-lite, executive ── */}
+      <Route path="/insights/executive"               element={<PrivateRoute><AppLayout><ExecutiveDashboardPage /></AppLayout></PrivateRoute>} />
+      <Route path="/insights/job-costing"             element={<PrivateRoute><AppLayout><JobCostingPage /></AppLayout></PrivateRoute>} />
+      <Route path="/insights/receivables"            element={<PrivateRoute><AppLayout><ReceivablesPage /></AppLayout></PrivateRoute>} />
+      <Route path="/hr/attendance"                    element={<PrivateRoute><AppLayout><AttendancePage /></AppLayout></PrivateRoute>} />
+
+      {/* ── WMS Phase 5: Audit, RBAC, notifications ── */}
+      <Route path="/admin/audit-trail"                element={<PrivateRoute><AppLayout><AuditTrailPage /></AppLayout></PrivateRoute>} />
+      <Route path="/admin/wms-permissions"            element={<PrivateRoute><AppLayout><WmsPermissionsPage /></AppLayout></PrivateRoute>} />
+      <Route path="/notifications"                    element={<PrivateRoute><AppLayout><NotificationsPage /></AppLayout></PrivateRoute>} />
 
       <Route
         path="/whatsapp-receipt-log"
@@ -774,6 +801,7 @@ function App() {
 
   return (
     <AuthProvider>
+      <WmsRbacProvider>
       <ToastProvider>
         <BrowserRouter
           future={{
@@ -784,6 +812,7 @@ function App() {
           <AppRoutes />
         </BrowserRouter>
       </ToastProvider>
+      </WmsRbacProvider>
     </AuthProvider>
   )
 }

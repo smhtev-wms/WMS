@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '../../lib/AuthContext'
 import { useToast } from '../../lib/toast'
-import { canManageMasters, listMachinesBrief, listOperatorsBrief } from '../../lib/mastersLib'
+import { listMachinesBrief, listOperatorsBrief } from '../../lib/mastersLib'
+import { useWmsModuleAccess } from '../../lib/useWmsModuleAccess'
 import {
   listDprEntries,
   saveDprEntry,
@@ -28,7 +29,7 @@ const emptyForm = () => ({
 export default function DprPage() {
   const { profile } = useAuth()
   const toast = useToast()
-  const canEdit = canManageMasters(profile?.role)
+  const { canEdit } = useWmsModuleAccess('shop')
 
   const [rows, setRows] = useState([])
   const [loading, setLoading] = useState(true)

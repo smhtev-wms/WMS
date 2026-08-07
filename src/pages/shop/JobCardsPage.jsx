@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../lib/AuthContext'
 import { useToast } from '../../lib/toast'
-import { canManageMasters } from '../../lib/mastersLib'
+import { useWmsModuleAccess } from '../../lib/useWmsModuleAccess'
 import { listJobCards, createJobCard, suggestJobNumber, listPoLinesForPlanning } from '../../lib/shopLib'
 import { JOB_STATUSES, statusMeta, fmtDate } from '../../lib/shopConstants'
 import { Loader2, Plus, Search, Briefcase, X, Save } from 'lucide-react'
@@ -12,7 +12,7 @@ export default function JobCardsPage() {
   const navigate = useNavigate()
   const { profile } = useAuth()
   const toast = useToast()
-  const canEdit = canManageMasters(profile?.role)
+  const { canEdit } = useWmsModuleAccess('shop')
 
   const [rows, setRows] = useState([])
   const [loading, setLoading] = useState(true)

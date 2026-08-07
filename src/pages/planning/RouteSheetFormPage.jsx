@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback } from 'react'
 import { useNavigate, useParams, useLocation } from 'react-router-dom'
 import { useAuth } from '../../lib/AuthContext'
 import { useToast } from '../../lib/toast'
-import { canManageMasters, listItemsBrief, listMachinesBrief, listSubcontractorsBrief } from '../../lib/mastersLib'
+import { listItemsBrief, listMachinesBrief, listSubcontractorsBrief } from '../../lib/mastersLib'
+import { useWmsModuleAccess } from '../../lib/useWmsModuleAccess'
 import { getRouteSheet, saveRouteSheet, suggestRouteSheetCode } from '../../lib/planningLib'
 import { isUuid } from '../../lib/ordersLib'
 import { ROUTE_SHEET_STATUSES } from '../../lib/planningConstants'
@@ -35,7 +36,7 @@ export default function RouteSheetFormPage() {
   const navigate = useNavigate()
   const { profile } = useAuth()
   const toast = useToast()
-  const canEdit = canManageMasters(profile?.role)
+  const { canEdit } = useWmsModuleAccess('planning')
 
   const [loading, setLoading] = useState(!isNew && hasValidId)
   const [header, setHeader] = useState(emptyHeader())

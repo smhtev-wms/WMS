@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '../../lib/AuthContext'
 import { useToast } from '../../lib/toast'
-import { canManageMasters, listItemsBrief } from '../../lib/mastersLib'
+import { listItemsBrief } from '../../lib/mastersLib'
+import { useWmsModuleAccess } from '../../lib/useWmsModuleAccess'
 import { listDrawingRevisions, saveDrawingRevision } from '../../lib/engineeringLib'
 import { fmtDate } from '../../lib/orderConstants'
 import { Loader2, Plus, FileDiff, X, Save } from 'lucide-react'
@@ -20,7 +21,7 @@ const emptyForm = () => ({
 export default function DrawingRevisionsPage() {
   const { profile, user } = useAuth()
   const toast = useToast()
-  const canEdit = canManageMasters(profile?.role)
+  const { canEdit } = useWmsModuleAccess('engineering')
   const [rows, setRows] = useState([])
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)

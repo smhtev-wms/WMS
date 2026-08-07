@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../lib/AuthContext'
+import { useWmsRbac } from '../../lib/WmsRbacContext'
 import { supabase } from '../../lib/supabase'
 import { getChurchFlags, loadChurchSettings } from '../../lib/churchSettings'
 import { ChevronLeft, ChevronRight, ChevronDown,
@@ -12,6 +13,9 @@ import { ChevronLeft, ChevronRight, ChevronDown,
   Briefcase, ClipboardCheck, TimerOff,
   PackageOpen, ArrowDownToLine,
   AlertTriangle, FileDiff,
+  Mail,
+  BarChart2, UserCheck,
+  Bell, Shield, ScrollText,
 } from 'lucide-react'
 import { HEADER_H } from './Header'
 
@@ -19,7 +23,7 @@ const NAV = [
   { group: 'MAIN', items: [
     { label: 'Dashboard',     path: '/dashboard',     icon: LayoutDashboard },
   ]},
-  { group: 'MASTER DATA', adminOnly: true, items: [
+  { group: 'MASTER DATA', wmsModule: 'masters', items: [
     { label: 'Customers',       path: '/masters/customers',      icon: Users },
     { label: 'Items / Parts',   path: '/masters/items',          icon: Package },
     { label: 'Materials',       path: '/masters/materials',      icon: Layers },
@@ -28,34 +32,48 @@ const NAV = [
     { label: 'Subcontractors',  path: '/masters/subcontractors', icon: Truck },
     { label: 'Tooling & Gauges', path: '/masters/tooling',       icon: Wrench },
   ]},
-  { group: 'ORDERS', adminOnly: true, items: [
+  { group: 'ORDERS', wmsModule: 'orders', items: [
     { label: 'Enquiries / RFQ',   path: '/orders/enquiries',          icon: MessageSquare },
     { label: 'Purchase orders',   path: '/orders/purchase-orders',    icon: FileText },
     { label: 'Order status',      path: '/orders/status',             icon: Activity },
   ]},
-  { group: 'PLANNING', adminOnly: true, items: [
+  { group: 'PLANNING', wmsModule: 'planning', items: [
     { label: 'Route sheets',        path: '/planning/route-sheets',     icon: ClipboardList },
     { label: 'Machine schedule',    path: '/planning/schedule',         icon: Calendar },
     { label: 'Production vs delivery', path: '/planning/production-plan', icon: BarChart3 },
   ]},
-  { group: 'SHOP FLOOR', adminOnly: true, items: [
+  { group: 'SHOP FLOOR', wmsModule: 'shop', items: [
     { label: 'Job cards',       path: '/shop/job-cards',  icon: Briefcase },
     { label: 'DPR',             path: '/shop/dpr',        icon: ClipboardCheck },
     { label: 'Downtime log',    path: '/shop/downtime',   icon: TimerOff },
   ]},
-  { group: 'STORES', adminOnly: true, items: [
+  { group: 'STORES', wmsModule: 'stores', items: [
     { label: 'RM inward',        path: '/stores/rm-inward',       icon: PackageOpen },
     { label: 'Material issue',   path: '/stores/material-issue',  icon: ArrowDownToLine },
   ]},
-  { group: 'QUALITY', adminOnly: true, items: [
+  { group: 'QUALITY', wmsModule: 'quality', items: [
     { label: 'Inspections',     path: '/quality/inspections', icon: ClipboardCheck },
     { label: 'NCR',             path: '/quality/ncr',           icon: AlertTriangle },
   ]},
-  { group: 'DISPATCH', adminOnly: true, items: [
-    { label: 'Dispatch notes',  path: '/dispatch/notes',        icon: Truck },
+  { group: 'MORE', items: [
+    { label: 'Dispatch notes', path: '/dispatch/notes', icon: Truck, wmsModule: 'dispatch' },
+    { label: 'Drawing revisions', path: '/engineering/drawing-revisions', icon: FileDiff, wmsModule: 'engineering' },
   ]},
-  { group: 'ENGINEERING', adminOnly: true, items: [
-    { label: 'Drawing revisions', path: '/engineering/drawing-revisions', icon: FileDiff },
+  { group: 'COMMERCIAL', wmsModule: 'commercial', items: [
+    { label: 'Tender alerts',     path: '/commercial/tenders',        icon: Megaphone },
+    { label: 'Correspondence',    path: '/commercial/correspondence', icon: Mail },
+    { label: 'Notifications',     path: '/notifications',             icon: Bell },
+  ]},
+  { group: 'MAINTENANCE', wmsModule: 'maintenance', items: [
+    { label: 'PM schedules',      path: '/maintenance',               icon: Settings },
+  ]},
+  { group: 'INSIGHTS', wmsModule: 'insights', items: [
+    { label: 'Executive dashboard', path: '/insights/executive',    icon: BarChart2 },
+    { label: 'Job costing',         path: '/insights/job-costing',  icon: IndianRupee },
+    { label: 'Payment ageing',      path: '/insights/receivables',  icon: CreditCard },
+  ]},
+  { group: 'HR', wmsModule: 'hr', items: [
+    { label: 'Attendance',          path: '/hr/attendance',         icon: UserCheck },
   ]},
   { group: 'FINANCE', adminOnly: true, items: [
     { label: 'Accounts',          path: '/accounting',        icon: Landmark,    accountingOnly: true },
@@ -65,22 +83,42 @@ const NAV = [
     { label: 'Company Setup',      path: '/company-setup',    icon: Building,       superOnly: true },
     { label: 'Users',             path: '/users',           icon: UserCog,        superOnly: true },
     { label: 'Import Data',       path: '/import',          icon: Upload,         superOnly: true },
+    { label: 'WMS permissions',   path: '/admin/wms-permissions', icon: Shield,   superOnly: true },
   ]},
   { group: 'LOGS', adminOnly: true, items: [
-    { label: 'Login Details', path: '/login-logs', icon: LogIn },
+    { label: 'Login Details', path: '/login-logs', icon: LogIn, adminOnly: true },
+    { label: 'Audit trail', path: '/admin/audit-trail', icon: ScrollText, wmsModule: 'admin' },
   ]},
 ]
 
 export default function Sidebar({ collapsed, sidebarW, onToggle }) {
   const { profile } = useAuth()
+  const { canRead } = useWmsRbac()
   const navigate    = useNavigate()
   const location    = useLocation()
   const isSuperAdmin = profile?.role === 'super_admin'
   const isAdmin      = ['super_admin', 'admin', 'admin1'].includes(profile?.role)
+  const role = profile?.role
 
   const [accountingEnabled,       setAccountingEnabled]       = useState(false)
   const [simpleAccountingEnabled, setSimpleAccountingEnabled] = useState(false)
   const [expandedItems, setExpandedItems] = useState(new Set())
+
+  const navItemVisible = useCallback((item) => {
+    if (item.superOnly && !isSuperAdmin) return false
+    if (item.adminOnly && !isAdmin) return false
+    if (item.accountingOnly && !accountingEnabled) return false
+    if (item.simpleOnly && !simpleAccountingEnabled) return false
+    if (item.wmsModule) return canRead(role, item.wmsModule)
+    return true
+  }, [isSuperAdmin, isAdmin, role, canRead, accountingEnabled, simpleAccountingEnabled])
+
+  const navGroupVisible = useCallback((group) => {
+    if (group.superOnly && !isSuperAdmin) return false
+    if (group.wmsModule) return canRead(role, group.wmsModule)
+    if (group.adminOnly) return isAdmin
+    return group.items.some(navItemVisible)
+  }, [isSuperAdmin, isAdmin, role, canRead, navItemVisible])
 
   const loadFlags = useCallback(() => {
     loadChurchSettings()
@@ -150,8 +188,7 @@ export default function Sidebar({ collapsed, sidebarW, onToggle }) {
         )}
 
         {NAV.map(group => {
-          if (group.superOnly && !isSuperAdmin) return null
-          if (group.adminOnly  && !isAdmin)     return null
+          if (!navGroupVisible(group)) return null
           const isMain = group.group === 'MAIN'
           return (
             <div key={group.group} style={{ marginBottom: 26 }}>
@@ -169,6 +206,7 @@ export default function Sidebar({ collapsed, sidebarW, onToggle }) {
               )}
 
               {group.items.map(item => {
+                if (!navItemVisible(item)) return null
                 if (item.superOnly && !isSuperAdmin) return null
                 if (item.accountingOnly && !accountingEnabled) return null
                 if (item.simpleOnly    && !simpleAccountingEnabled) return null

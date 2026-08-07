@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useAuth } from '../../lib/AuthContext'
 import { useToast } from '../../lib/toast'
-import { canManageMasters, listMaterialsBrief } from '../../lib/mastersLib'
+import { listMaterialsBrief } from '../../lib/mastersLib'
+import { useWmsModuleAccess } from '../../lib/useWmsModuleAccess'
 import { listRmInward, saveRmInward, suggestInwardNo } from '../../lib/storesLib'
 import { fmtDate } from '../../lib/orderConstants'
 import { Loader2, Plus, Search, PackageOpen, X, Save, Pencil } from 'lucide-react'
@@ -24,7 +25,7 @@ const emptyForm = () => ({
 export default function RmInwardPage() {
   const { profile } = useAuth()
   const toast = useToast()
-  const canEdit = canManageMasters(profile?.role)
+  const { canEdit } = useWmsModuleAccess('stores')
 
   const [rows, setRows] = useState([])
   const [materials, setMaterials] = useState([])

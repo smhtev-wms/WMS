@@ -1,6 +1,7 @@
 ﻿import { useEffect, useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../lib/AuthContext'
+import { useWmsRbac } from '../lib/WmsRbacContext'
 import { supabase } from '../lib/supabase'
 import { ROLE_LABELS } from '../lib/auth'
 import { loadChurchSettings, getChurchFlags } from '../lib/churchSettings'
@@ -8,6 +9,8 @@ import {
   LayoutDashboard, Landmark, Wallet, Building, UserCog, Upload,
   LogIn, Users, ChevronRight, Sparkles, Package, Layers, Cog,
   FileText, Activity, ClipboardCheck, AlertTriangle, Truck, FileDiff,
+  Megaphone, Mail, Settings, BarChart2, IndianRupee, CreditCard,
+  UserCheck, Bell, Briefcase,
 } from 'lucide-react'
 
 function greetingForHour(h) {
@@ -26,6 +29,7 @@ function displayName(profile) {
 export default function DashboardPage() {
   const navigate = useNavigate()
   const { session, profile, loading: authLoading } = useAuth()
+  const { canRead } = useWmsRbac()
   const [churchName, setChurchName] = useState('')
   const [flags, setFlags] = useState({ accountingEnabled: false, simpleAccountingEnabled: false })
   const [stats, setStats] = useState({ customers: null, items: null, users: null })
@@ -76,22 +80,32 @@ export default function DashboardPage() {
     return () => { cancelled = true }
   }, [session, isAdmin, isSuperAdmin])
 
+  const role = profile?.role
+
   const quickLinks = useMemo(() => {
-    const links = []
-    if (isAdmin) {
-      links.push(
-        { label: 'Customers', desc: 'BHEL & allied customer master', path: '/masters/customers', icon: Users, tone: 'blue' },
-        { label: 'Items / Parts', desc: 'Drawings, revisions, UOM', path: '/masters/items', icon: Package, tone: 'violet' },
-        { label: 'Materials', desc: 'Raw material grades & specs', path: '/masters/materials', icon: Layers, tone: 'green' },
-        { label: 'Machines', desc: 'Shop equipment registry', path: '/masters/machines', icon: Cog, tone: 'amber' },
-        { label: 'Purchase orders', desc: 'Customer POs & line items', path: '/orders/purchase-orders', icon: FileText, tone: 'blue' },
-        { label: 'Order status', desc: 'Lifecycle & overdue deliveries', path: '/orders/status', icon: Activity, tone: 'green' },
-        { label: 'Inspections', desc: 'In-process & final QC records', path: '/quality/inspections', icon: ClipboardCheck, tone: 'violet' },
-        { label: 'NCR', desc: 'Non-conformance & corrective action', path: '/quality/ncr', icon: AlertTriangle, tone: 'amber' },
-        { label: 'Dispatch notes', desc: 'Delivery challans against PO lines', path: '/dispatch/notes', icon: Truck, tone: 'blue' },
-        { label: 'Drawing revisions', desc: 'Revision log & item updates', path: '/engineering/drawing-revisions', icon: FileDiff, tone: 'green' },
-      )
-    }
+    const wmsLinks = [
+      { label: 'Customers', desc: 'BHEL & allied customer master', path: '/masters/customers', icon: Users, tone: 'blue', module: 'masters' },
+      { label: 'Items / Parts', desc: 'Drawings, revisions, UOM', path: '/masters/items', icon: Package, tone: 'violet', module: 'masters' },
+      { label: 'Materials', desc: 'Raw material grades & specs', path: '/masters/materials', icon: Layers, tone: 'green', module: 'masters' },
+      { label: 'Machines', desc: 'Shop equipment registry', path: '/masters/machines', icon: Cog, tone: 'amber', module: 'masters' },
+      { label: 'Job cards', desc: 'Shop floor work orders', path: '/shop/job-cards', icon: Briefcase, tone: 'blue', module: 'shop' },
+      { label: 'DPR', desc: 'Daily production reporting', path: '/shop/dpr', icon: ClipboardCheck, tone: 'violet', module: 'shop' },
+      { label: 'Purchase orders', desc: 'Customer POs & line items', path: '/orders/purchase-orders', icon: FileText, tone: 'blue', module: 'orders' },
+      { label: 'Order status', desc: 'Lifecycle & overdue deliveries', path: '/orders/status', icon: Activity, tone: 'green', module: 'orders' },
+      { label: 'Inspections', desc: 'In-process & final QC records', path: '/quality/inspections', icon: ClipboardCheck, tone: 'violet', module: 'quality' },
+      { label: 'NCR', desc: 'Non-conformance & corrective action', path: '/quality/ncr', icon: AlertTriangle, tone: 'amber', module: 'quality' },
+      { label: 'Dispatch notes', desc: 'Delivery challans against PO lines', path: '/dispatch/notes', icon: Truck, tone: 'blue', module: 'dispatch' },
+      { label: 'Drawing revisions', desc: 'Revision log & item updates', path: '/engineering/drawing-revisions', icon: FileDiff, tone: 'green', module: 'engineering' },
+      { label: 'Tender alerts', desc: 'Submission deadlines & status', path: '/commercial/tenders', icon: Megaphone, tone: 'amber', module: 'commercial' },
+      { label: 'Correspondence', desc: 'Customer letters & follow-ups', path: '/commercial/correspondence', icon: Mail, tone: 'violet', module: 'commercial' },
+      { label: 'PM maintenance', desc: 'Preventive schedules & logs', path: '/maintenance', icon: Settings, tone: 'slate', module: 'maintenance' },
+      { label: 'Executive dashboard', desc: 'Workshop KPIs at a glance', path: '/insights/executive', icon: BarChart2, tone: 'blue', module: 'insights' },
+      { label: 'Job costing', desc: 'Margin by job card', path: '/insights/job-costing', icon: IndianRupee, tone: 'green', module: 'insights' },
+      { label: 'Payment ageing', desc: 'Customer invoice outstanding', path: '/insights/receivables', icon: CreditCard, tone: 'amber', module: 'insights' },
+      { label: 'Attendance', desc: 'Operator presence (HR-lite)', path: '/hr/attendance', icon: UserCheck, tone: 'violet', module: 'hr' },
+      { label: 'Notifications', desc: 'Alerts & overdue items', path: '/notifications', icon: Bell, tone: 'blue', module: 'commercial' },
+    ]
+    const links = wmsLinks.filter(l => canRead(role, l.module))
     if (isAdmin && flags.accountingEnabled) {
       links.push({
         label: 'Accounts',
@@ -123,7 +137,7 @@ export default function DashboardPage() {
       )
     }
     return links
-  }, [isAdmin, isSuperAdmin, flags])
+  }, [role, canRead, isAdmin, isSuperAdmin, flags])
 
   if (authLoading) {
     return (
@@ -256,11 +270,11 @@ export default function DashboardPage() {
         </section>
       )}
 
-      {!isAdmin && (
+      {!isAdmin && quickLinks.length === 0 && (
         <div className="card dashboard-tip animate-slide-up" style={{ animationDelay: '80ms', padding: '22px 24px' }}>
           <h3 className="card-title" style={{ fontSize: 15, marginBottom: 8 }}>Your dashboard</h3>
           <p style={{ margin: 0, fontSize: 13, color: 'var(--text-2)', lineHeight: 1.65 }}>
-            Use the menu when additional modules are assigned to your role. Contact your church administrator if you need access to finance or admin tools.
+            Use the sidebar when modules are assigned to your role. Contact your administrator if you need access to additional areas.
           </p>
         </div>
       )}

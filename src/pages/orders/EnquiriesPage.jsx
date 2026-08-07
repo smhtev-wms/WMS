@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useAuth } from '../../lib/AuthContext'
 import { useToast } from '../../lib/toast'
-import { canManageMasters, listCustomersBrief } from '../../lib/mastersLib'
+import { listCustomersBrief } from '../../lib/mastersLib'
+import { useWmsModuleAccess } from '../../lib/useWmsModuleAccess'
 import { listEnquiries, saveEnquiry, suggestEnquiryNo } from '../../lib/ordersLib'
 import { ENQUIRY_STATUSES, statusMeta, fmtDate } from '../../lib/orderConstants'
 import { Loader2, Plus, Pencil, Search, X, Save, MessageSquare } from 'lucide-react'
@@ -21,7 +22,7 @@ const emptyForm = {
 export default function EnquiriesPage() {
   const { profile } = useAuth()
   const toast = useToast()
-  const canEdit = canManageMasters(profile?.role)
+  const { canEdit } = useWmsModuleAccess('orders')
 
   const [rows, setRows] = useState([])
   const [customers, setCustomers] = useState([])

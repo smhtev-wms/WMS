@@ -42,7 +42,7 @@
 | 1.4 | Machine Master | `/masters/machines` | ✅ CRUD |
 | 1.5 | Operator Master | `/masters/operators` | ✅ CRUD |
 | 1.6 | Subcontractor Master | `/masters/subcontractors` | ✅ CRUD |
-| 1.7 | Tooling & Gauge Master | `/masters/tooling` | Sprint B |
+| 1.7 | Tooling & Gauge Master | `/masters/tooling` | ✅ Phase 3 |
 
 **Navigation:** Sidebar group **MASTER DATA** (admin). Dashboard quick links for admins.
 
@@ -138,6 +138,6 @@ Optional in Phase 1: WIP (4.3) — not implemented.
 ## After Phase 1
 
 - **Phase 2 (PDF):** Quality, Dispatch, Drawing revision — see [`WMS-PHASE2-PLAN.md`](WMS-PHASE2-PLAN.md) ✅ implemented in app (apply migration `20260807210000_wms_phase2.sql` on Supabase).
-- **Phase 3:** Tender alerts, tooling depth, maintenance, correspondence.
-- **Phase 4:** Job costing, payment ageing, HR-lite, executive dashboards.
-- **Phase 5:** Audit trail, field-level RBAC, notification engine.
+- **Phase 3:** Tender alerts, tooling depth, maintenance, correspondence — see [`WMS-PHASE3-PLAN.md`](WMS-PHASE3-PLAN.md) ✅ implemented (apply migration `20260807220000_wms_phase3.sql` on Supabase).
+- **Phase 4:** Job costing, payment ageing, HR-lite, executive dashboards — see [`WMS-PHASE4-PLAN.md`](WMS-PHASE4-PLAN.md) ✅ implemented (apply migration `20260807230000_wms_phase4.sql` on Supabase).
+- **Phase 5:** Audit trail, field-level RBAC, notification engine — see [`WMS-PHASE5-PLAN.md`](WMS-PHASE5-PLAN.md) ✅ implemented (apply migration `20260807240000_wms_phase5.sql` on Supabase).

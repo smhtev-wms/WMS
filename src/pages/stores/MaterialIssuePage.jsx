@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '../../lib/AuthContext'
 import { useToast } from '../../lib/toast'
-import { canManageMasters } from '../../lib/mastersLib'
+import { useWmsModuleAccess } from '../../lib/useWmsModuleAccess'
 import { listJobCardsBrief } from '../../lib/shopLib'
 import { listPoLinesForPlanning } from '../../lib/planningLib'
 import {
@@ -28,7 +28,7 @@ const emptyForm = () => ({
 export default function MaterialIssuePage() {
   const { profile } = useAuth()
   const toast = useToast()
-  const canEdit = canManageMasters(profile?.role)
+  const { canEdit } = useWmsModuleAccess('stores')
 
   const [rows, setRows] = useState([])
   const [lots, setLots] = useState([])

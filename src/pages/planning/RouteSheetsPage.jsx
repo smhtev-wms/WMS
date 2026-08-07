@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../lib/AuthContext'
 import { useToast } from '../../lib/toast'
-import { canManageMasters } from '../../lib/mastersLib'
+import { useWmsModuleAccess } from '../../lib/useWmsModuleAccess'
 import { listRouteSheets } from '../../lib/planningLib'
 import { ROUTE_SHEET_STATUSES, statusMeta } from '../../lib/planningConstants'
 import { Loader2, Plus, Pencil, Search, ClipboardList } from 'lucide-react'
@@ -11,7 +11,7 @@ export default function RouteSheetsPage() {
   const navigate = useNavigate()
   const { profile } = useAuth()
   const toast = useToast()
-  const canEdit = canManageMasters(profile?.role)
+  const { canEdit } = useWmsModuleAccess('planning')
 
   const [rows, setRows] = useState([])
   const [loading, setLoading] = useState(true)

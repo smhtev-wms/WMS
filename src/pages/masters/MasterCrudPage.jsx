@@ -5,7 +5,9 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useAuth } from '../../lib/AuthContext'
 import { useToast } from '../../lib/toast'
-import { canManageMasters, listMaster, saveMaster, setMasterActive, listCustomersBrief } from '../../lib/mastersLib'
+import { useWmsRbac } from '../../lib/WmsRbacContext'
+import { listMaster, saveMaster, setMasterActive, listCustomersBrief } from '../../lib/mastersLib'
+import { logWmsAudit } from '../../lib/auditLib'
 import { Loader2, Plus, Pencil, Power, Search, X, Save } from 'lucide-react'
 import AppModal from '../../components/ui/AppModal'
 
@@ -23,7 +25,9 @@ function matchesSearch(row, q, config) {
 export default function MasterCrudPage({ config }) {
   const { profile } = useAuth()
   const toast = useToast()
-  const canEdit = canManageMasters(profile?.role)
+  const { canRead, canWrite } = useWmsRbac()
+  const canEdit = canWrite(profile?.role, 'masters')
+  const canView = canRead(profile?.role, 'masters')
   const Icon = config.icon
 
   const [rows, setRows] = useState([])
@@ -90,7 +94,16 @@ export default function MasterCrudPage({ config }) {
     try {
       const payload = { ...form }
       if (payload.default_customer_id === '') payload.default_customer_id = null
+      if (payload.hourly_rate === '') payload.hourly_rate = null
+      else if (payload.hourly_rate != null && payload.hourly_rate !== '') payload.hourly_rate = Number(payload.hourly_rate)
       await saveMaster(config.table, payload, editing)
+      await logWmsAudit({
+        action: editing ? 'update' : 'create',
+        module: 'masters',
+        entityTable: config.table,
+        entityId: editing,
+        summary: `${editing ? 'Updated' : 'Created'} ${config.title}: ${payload[config.codeField] || payload[config.nameField] || ''}`,
+      })
       toast(editing ? 'Updated.' : 'Created.', 'success')
       setModalOpen(false)
       await load()
@@ -156,7 +169,7 @@ export default function MasterCrudPage({ config }) {
     )
   }
 
-  if (!canManageMasters(profile?.role) && profile?.role !== 'user' && profile?.role !== 'demo') {
+  if (!canView) {
     return (
       <div className="card" style={{ padding: 24, textAlign: 'center' }}>
         <p style={{ color: 'var(--text-3)' }}>You do not have access to master data.</p>

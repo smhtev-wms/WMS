@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../../lib/AuthContext'
 import { useToast } from '../../lib/toast'
-import { canManageMasters } from '../../lib/mastersLib'
+import { useWmsModuleAccess } from '../../lib/useWmsModuleAccess'
 import { getJobCard, updateJobCard, updateJobOperation } from '../../lib/shopLib'
 import { isUuid } from '../../lib/ordersLib'
 import { JOB_STATUSES, OP_STATUSES, statusMeta, fmtDate } from '../../lib/shopConstants'
@@ -13,7 +13,7 @@ export default function JobCardDetailPage() {
   const navigate = useNavigate()
   const { profile } = useAuth()
   const toast = useToast()
-  const canEdit = canManageMasters(profile?.role)
+  const { canEdit } = useWmsModuleAccess('shop')
 
   const [loading, setLoading] = useState(true)
   const [card, setCard] = useState(null)

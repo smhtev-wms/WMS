@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useAuth } from '../../lib/AuthContext'
 import { useToast } from '../../lib/toast'
-import { canManageMasters, listMachinesBrief } from '../../lib/mastersLib'
+import { listMachinesBrief } from '../../lib/mastersLib'
+import { useWmsModuleAccess } from '../../lib/useWmsModuleAccess'
 import {
   listScheduleEntries,
   saveScheduleEntry,
@@ -26,7 +27,7 @@ const emptyForm = () => ({
 export default function SchedulePage() {
   const { profile } = useAuth()
   const toast = useToast()
-  const canEdit = canManageMasters(profile?.role)
+  const { canEdit } = useWmsModuleAccess('planning')
 
   const [machines, setMachines] = useState([])
   const [machineFilter, setMachineFilter] = useState('')
