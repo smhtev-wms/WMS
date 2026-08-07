@@ -8,12 +8,43 @@ import { ChevronLeft, ChevronRight, ChevronDown,
   BarChart3, Megaphone, Building, UserCog, Upload, ClipboardList, LogIn,
   BookOpen, MessageSquare, CreditCard, Send, Landmark,
   PiggyBank, Tag, List, Settings, Wallet, Calendar, BookMarked,
+  Package, Layers, Cog, Truck, Wrench, Activity,
+  Briefcase, ClipboardCheck, TimerOff,
+  PackageOpen, ArrowDownToLine,
 } from 'lucide-react'
 import { HEADER_H } from './Header'
 
 const NAV = [
   { group: 'MAIN', items: [
     { label: 'Dashboard',     path: '/dashboard',     icon: LayoutDashboard },
+  ]},
+  { group: 'MASTER DATA', adminOnly: true, items: [
+    { label: 'Customers',       path: '/masters/customers',      icon: Users },
+    { label: 'Items / Parts',   path: '/masters/items',          icon: Package },
+    { label: 'Materials',       path: '/masters/materials',      icon: Layers },
+    { label: 'Machines',        path: '/masters/machines',       icon: Cog },
+    { label: 'Operators',       path: '/masters/operators',      icon: UserCog },
+    { label: 'Subcontractors',  path: '/masters/subcontractors', icon: Truck },
+    { label: 'Tooling & Gauges', path: '/masters/tooling',       icon: Wrench },
+  ]},
+  { group: 'ORDERS', adminOnly: true, items: [
+    { label: 'Enquiries / RFQ',   path: '/orders/enquiries',          icon: MessageSquare },
+    { label: 'Purchase orders',   path: '/orders/purchase-orders',    icon: FileText },
+    { label: 'Order status',      path: '/orders/status',             icon: Activity },
+  ]},
+  { group: 'PLANNING', adminOnly: true, items: [
+    { label: 'Route sheets',        path: '/planning/route-sheets',     icon: ClipboardList },
+    { label: 'Machine schedule',    path: '/planning/schedule',         icon: Calendar },
+    { label: 'Production vs delivery', path: '/planning/production-plan', icon: BarChart3 },
+  ]},
+  { group: 'SHOP FLOOR', adminOnly: true, items: [
+    { label: 'Job cards',       path: '/shop/job-cards',  icon: Briefcase },
+    { label: 'DPR',             path: '/shop/dpr',        icon: ClipboardCheck },
+    { label: 'Downtime log',    path: '/shop/downtime',   icon: TimerOff },
+  ]},
+  { group: 'STORES', adminOnly: true, items: [
+    { label: 'RM inward',        path: '/stores/rm-inward',       icon: PackageOpen },
+    { label: 'Material issue',   path: '/stores/material-issue',  icon: ArrowDownToLine },
   ]},
   { group: 'FINANCE', adminOnly: true, items: [
     { label: 'Accounts',          path: '/accounting',        icon: Landmark,    accountingOnly: true },

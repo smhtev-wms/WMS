@@ -6,7 +6,8 @@ import { ROLE_LABELS } from '../lib/auth'
 import { loadChurchSettings, getChurchFlags } from '../lib/churchSettings'
 import {
   LayoutDashboard, Landmark, Wallet, Building, UserCog, Upload,
-  LogIn, Users, ChevronRight, Sparkles,
+  LogIn, Users, ChevronRight, Sparkles, Package, Layers, Cog,
+  FileText, Activity,
 } from 'lucide-react'
 
 function greetingForHour(h) {
@@ -27,7 +28,7 @@ export default function DashboardPage() {
   const { session, profile, loading: authLoading } = useAuth()
   const [churchName, setChurchName] = useState('')
   const [flags, setFlags] = useState({ accountingEnabled: false, simpleAccountingEnabled: false })
-  const [stats, setStats] = useState({ members: null, users: null })
+  const [stats, setStats] = useState({ customers: null, items: null, users: null })
   const [statsLoading, setStatsLoading] = useState(true)
 
   const isSuperAdmin = profile?.role === 'super_admin'
@@ -54,7 +55,8 @@ export default function DashboardPage() {
       setStatsLoading(true)
       try {
         const tasks = [
-          supabase.from('members').select('*', { count: 'exact', head: true }),
+          supabase.from('wms_customers').select('*', { count: 'exact', head: true }),
+          supabase.from('wms_items').select('*', { count: 'exact', head: true }),
         ]
         if (isSuperAdmin) {
           tasks.push(supabase.from('profiles').select('*', { count: 'exact', head: true }))
@@ -62,8 +64,9 @@ export default function DashboardPage() {
         const results = await Promise.all(tasks)
         if (cancelled) return
         setStats({
-          members: results[0].error ? null : (results[0].count ?? 0),
-          users: results[1] ? (results[1].error ? null : (results[1].count ?? 0)) : null,
+          customers: results[0].error ? null : (results[0].count ?? 0),
+          items: results[1].error ? null : (results[1].count ?? 0),
+          users: results[2] ? (results[2].error ? null : (results[2].count ?? 0)) : null,
         })
       } finally {
         if (!cancelled) setStatsLoading(false)
@@ -75,6 +78,16 @@ export default function DashboardPage() {
 
   const quickLinks = useMemo(() => {
     const links = []
+    if (isAdmin) {
+      links.push(
+        { label: 'Customers', desc: 'BHEL & allied customer master', path: '/masters/customers', icon: Users, tone: 'blue' },
+        { label: 'Items / Parts', desc: 'Drawings, revisions, UOM', path: '/masters/items', icon: Package, tone: 'violet' },
+        { label: 'Materials', desc: 'Raw material grades & specs', path: '/masters/materials', icon: Layers, tone: 'green' },
+        { label: 'Machines', desc: 'Shop equipment registry', path: '/masters/machines', icon: Cog, tone: 'amber' },
+        { label: 'Purchase orders', desc: 'Customer POs & line items', path: '/orders/purchase-orders', icon: FileText, tone: 'blue' },
+        { label: 'Order status', desc: 'Lifecycle & overdue deliveries', path: '/orders/status', icon: Activity, tone: 'green' },
+      )
+    }
     if (isAdmin && flags.accountingEnabled) {
       links.push({
         label: 'Accounts',
@@ -139,7 +152,7 @@ export default function DashboardPage() {
             {churchName ? (
               <>Welcome to <strong>{churchName}</strong></>
             ) : (
-              'Welcome to your church management workspace'
+              'Welcome to your workshop management workspace'
             )}
             {roleLabel && (
               <span className="dashboard-role-pill">{roleLabel}</span>
@@ -158,10 +171,22 @@ export default function DashboardPage() {
               <Users size={18} />
             </div>
             <div>
-              <p className="stat-tile-label">Members</p>
+              <p className="stat-tile-label">Customers</p>
               {statsLoading
                 ? <div className="loading-skeleton stat-tile-value-skeleton" />
-                : <p className="stat-tile-value">{stats.members ?? '—'}</p>
+                : <p className="stat-tile-value">{stats.customers ?? '—'}</p>
+              }
+            </div>
+          </div>
+          <div className="stat-tile animate-slide-up" style={{ animationDelay: '80ms' }}>
+            <div className="stat-tile-icon" data-tone="violet">
+              <Package size={18} />
+            </div>
+            <div>
+              <p className="stat-tile-label">Items / parts</p>
+              {statsLoading
+                ? <div className="loading-skeleton stat-tile-value-skeleton" />
+                : <p className="stat-tile-value">{stats.items ?? '—'}</p>
               }
             </div>
           </div>

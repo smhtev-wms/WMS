@@ -48,6 +48,28 @@ import BankReconciliationPage     from './pages/BankReconciliationPage'
 import BudgetVsActualPage         from './pages/BudgetVsActualPage'
 import EntityManagementPage       from './pages/EntityManagementPage'
 import { EntityProvider }         from './lib/EntityContext'
+import CustomersPage              from './pages/masters/CustomersPage'
+import ItemsPage                  from './pages/masters/ItemsPage'
+import MaterialsPage              from './pages/masters/MaterialsPage'
+import WmsMachinesPage            from './pages/masters/WmsMachinesPage'
+import OperatorsPage              from './pages/masters/OperatorsPage'
+import SubcontractorsPage         from './pages/masters/SubcontractorsPage'
+import ToolingPlaceholderPage     from './pages/masters/ToolingPlaceholderPage'
+import EnquiriesPage              from './pages/orders/EnquiriesPage'
+import PurchaseOrdersPage         from './pages/orders/PurchaseOrdersPage'
+import PurchaseOrderFormPage      from './pages/orders/PurchaseOrderFormPage'
+import PoAmendmentsPage             from './pages/orders/PoAmendmentsPage'
+import OrderStatusPage            from './pages/orders/OrderStatusPage'
+import RouteSheetsPage            from './pages/planning/RouteSheetsPage'
+import RouteSheetFormPage         from './pages/planning/RouteSheetFormPage'
+import SchedulePage               from './pages/planning/SchedulePage'
+import ProductionPlanPage         from './pages/planning/ProductionPlanPage'
+import JobCardsPage               from './pages/shop/JobCardsPage'
+import JobCardDetailPage          from './pages/shop/JobCardDetailPage'
+import DprPage                    from './pages/shop/DprPage'
+import DowntimePage               from './pages/shop/DowntimePage'
+import RmInwardPage                 from './pages/stores/RmInwardPage'
+import MaterialIssuePage            from './pages/stores/MaterialIssuePage'
 
 console.log('📱 App component rendering')
 
@@ -641,6 +663,41 @@ function AppRoutes() {
         path="/login-logs"
         element={<PrivateRoute><AppLayout><LoginLogsPage /></AppLayout></PrivateRoute>}
       />
+
+      {/* ── WMS Master Data (Phase 1) ── */}
+      <Route path="/masters/customers"       element={<PrivateRoute><AppLayout><CustomersPage /></AppLayout></PrivateRoute>} />
+      <Route path="/masters/items"           element={<PrivateRoute><AppLayout><ItemsPage /></AppLayout></PrivateRoute>} />
+      <Route path="/masters/materials"       element={<PrivateRoute><AppLayout><MaterialsPage /></AppLayout></PrivateRoute>} />
+      <Route path="/masters/machines"         element={<PrivateRoute><AppLayout><WmsMachinesPage /></AppLayout></PrivateRoute>} />
+      <Route path="/masters/operators"       element={<PrivateRoute><AppLayout><OperatorsPage /></AppLayout></PrivateRoute>} />
+      <Route path="/masters/subcontractors"  element={<PrivateRoute><AppLayout><SubcontractorsPage /></AppLayout></PrivateRoute>} />
+      <Route path="/masters/tooling"         element={<PrivateRoute><AppLayout><ToolingPlaceholderPage /></AppLayout></PrivateRoute>} />
+
+      {/* ── WMS Orders (Phase 1 Sprint B) ── */}
+      <Route path="/orders/enquiries"                    element={<PrivateRoute><AppLayout><EnquiriesPage /></AppLayout></PrivateRoute>} />
+      <Route path="/orders/purchase-orders"              element={<PrivateRoute><AppLayout><PurchaseOrdersPage /></AppLayout></PrivateRoute>} />
+      <Route path="/orders/purchase-orders/new"           element={<PrivateRoute><AppLayout><PurchaseOrderFormPage /></AppLayout></PrivateRoute>} />
+      <Route path="/orders/purchase-orders/:id/amendments" element={<PrivateRoute><AppLayout><PoAmendmentsPage /></AppLayout></PrivateRoute>} />
+      <Route path="/orders/purchase-orders/:id"           element={<PrivateRoute><AppLayout><PurchaseOrderFormPage /></AppLayout></PrivateRoute>} />
+      <Route path="/orders/status"                       element={<PrivateRoute><AppLayout><OrderStatusPage /></AppLayout></PrivateRoute>} />
+
+      {/* ── WMS Planning (Phase 1 Sprint C) ── */}
+      <Route path="/planning/route-sheets"              element={<PrivateRoute><AppLayout><RouteSheetsPage /></AppLayout></PrivateRoute>} />
+      <Route path="/planning/route-sheets/new"           element={<PrivateRoute><AppLayout><RouteSheetFormPage /></AppLayout></PrivateRoute>} />
+      <Route path="/planning/route-sheets/:id"           element={<PrivateRoute><AppLayout><RouteSheetFormPage /></AppLayout></PrivateRoute>} />
+      <Route path="/planning/schedule"                  element={<PrivateRoute><AppLayout><SchedulePage /></AppLayout></PrivateRoute>} />
+      <Route path="/planning/production-plan"           element={<PrivateRoute><AppLayout><ProductionPlanPage /></AppLayout></PrivateRoute>} />
+
+      {/* ── WMS Shop floor (Phase 1 Sprint D) ── */}
+      <Route path="/shop/job-cards"                     element={<PrivateRoute><AppLayout><JobCardsPage /></AppLayout></PrivateRoute>} />
+      <Route path="/shop/job-cards/:id"                 element={<PrivateRoute><AppLayout><JobCardDetailPage /></AppLayout></PrivateRoute>} />
+      <Route path="/shop/dpr"                           element={<PrivateRoute><AppLayout><DprPage /></AppLayout></PrivateRoute>} />
+      <Route path="/shop/downtime"                      element={<PrivateRoute><AppLayout><DowntimePage /></AppLayout></PrivateRoute>} />
+
+      {/* ── WMS Stores (Phase 1 Sprint E) ── */}
+      <Route path="/stores/rm-inward"                   element={<PrivateRoute><AppLayout><RmInwardPage /></AppLayout></PrivateRoute>} />
+      <Route path="/stores/material-issue"             element={<PrivateRoute><AppLayout><MaterialIssuePage /></AppLayout></PrivateRoute>} />
+
       <Route
         path="/whatsapp-receipt-log"
         element={<PrivateRoute><AppLayout><WhatsAppReceiptLogPage /></AppLayout></PrivateRoute>}
