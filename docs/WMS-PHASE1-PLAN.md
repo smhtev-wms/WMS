@@ -137,7 +137,7 @@ Optional in Phase 1: WIP (4.3) — not implemented.
 
 ## After Phase 1
 
-- **Phase 2 (PDF):** Quality, Dispatch, Drawing revision.
+- **Phase 2 (PDF):** Quality, Dispatch, Drawing revision — see [`WMS-PHASE2-PLAN.md`](WMS-PHASE2-PLAN.md) ✅ implemented in app (apply migration `20260807210000_wms_phase2.sql` on Supabase).
 - **Phase 3:** Tender alerts, tooling depth, maintenance, correspondence.
 - **Phase 4:** Job costing, payment ageing, HR-lite, executive dashboards.
 - **Phase 5:** Audit trail, field-level RBAC, notification engine.

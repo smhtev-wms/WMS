@@ -7,7 +7,7 @@ import { loadChurchSettings, getChurchFlags } from '../lib/churchSettings'
 import {
   LayoutDashboard, Landmark, Wallet, Building, UserCog, Upload,
   LogIn, Users, ChevronRight, Sparkles, Package, Layers, Cog,
-  FileText, Activity,
+  FileText, Activity, ClipboardCheck, AlertTriangle, Truck, FileDiff,
 } from 'lucide-react'
 
 function greetingForHour(h) {
@@ -86,6 +86,10 @@ export default function DashboardPage() {
         { label: 'Machines', desc: 'Shop equipment registry', path: '/masters/machines', icon: Cog, tone: 'amber' },
         { label: 'Purchase orders', desc: 'Customer POs & line items', path: '/orders/purchase-orders', icon: FileText, tone: 'blue' },
         { label: 'Order status', desc: 'Lifecycle & overdue deliveries', path: '/orders/status', icon: Activity, tone: 'green' },
+        { label: 'Inspections', desc: 'In-process & final QC records', path: '/quality/inspections', icon: ClipboardCheck, tone: 'violet' },
+        { label: 'NCR', desc: 'Non-conformance & corrective action', path: '/quality/ncr', icon: AlertTriangle, tone: 'amber' },
+        { label: 'Dispatch notes', desc: 'Delivery challans against PO lines', path: '/dispatch/notes', icon: Truck, tone: 'blue' },
+        { label: 'Drawing revisions', desc: 'Revision log & item updates', path: '/engineering/drawing-revisions', icon: FileDiff, tone: 'green' },
       )
     }
     if (isAdmin && flags.accountingEnabled) {

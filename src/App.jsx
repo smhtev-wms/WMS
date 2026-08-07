@@ -70,6 +70,11 @@ import DprPage                    from './pages/shop/DprPage'
 import DowntimePage               from './pages/shop/DowntimePage'
 import RmInwardPage                 from './pages/stores/RmInwardPage'
 import MaterialIssuePage            from './pages/stores/MaterialIssuePage'
+import InspectionsPage              from './pages/quality/InspectionsPage'
+import NcrPage                      from './pages/quality/NcrPage'
+import DispatchNotesPage            from './pages/dispatch/DispatchNotesPage'
+import DispatchFormPage             from './pages/dispatch/DispatchFormPage'
+import DrawingRevisionsPage         from './pages/engineering/DrawingRevisionsPage'
 
 console.log('📱 App component rendering')
 
@@ -697,6 +702,14 @@ function AppRoutes() {
       {/* ── WMS Stores (Phase 1 Sprint E) ── */}
       <Route path="/stores/rm-inward"                   element={<PrivateRoute><AppLayout><RmInwardPage /></AppLayout></PrivateRoute>} />
       <Route path="/stores/material-issue"             element={<PrivateRoute><AppLayout><MaterialIssuePage /></AppLayout></PrivateRoute>} />
+
+      {/* ── WMS Phase 2: Quality, dispatch, drawing revision ── */}
+      <Route path="/quality/inspections"              element={<PrivateRoute><AppLayout><InspectionsPage /></AppLayout></PrivateRoute>} />
+      <Route path="/quality/ncr"                        element={<PrivateRoute><AppLayout><NcrPage /></AppLayout></PrivateRoute>} />
+      <Route path="/dispatch/notes"                    element={<PrivateRoute><AppLayout><DispatchNotesPage /></AppLayout></PrivateRoute>} />
+      <Route path="/dispatch/notes/new"                 element={<PrivateRoute><AppLayout><DispatchFormPage /></AppLayout></PrivateRoute>} />
+      <Route path="/dispatch/notes/:id"                 element={<PrivateRoute><AppLayout><DispatchFormPage /></AppLayout></PrivateRoute>} />
+      <Route path="/engineering/drawing-revisions"      element={<PrivateRoute><AppLayout><DrawingRevisionsPage /></AppLayout></PrivateRoute>} />
 
       <Route
         path="/whatsapp-receipt-log"

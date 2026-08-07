@@ -11,6 +11,7 @@ import { ChevronLeft, ChevronRight, ChevronDown,
   Package, Layers, Cog, Truck, Wrench, Activity,
   Briefcase, ClipboardCheck, TimerOff,
   PackageOpen, ArrowDownToLine,
+  AlertTriangle, FileDiff,
 } from 'lucide-react'
 import { HEADER_H } from './Header'
 
@@ -45,6 +46,16 @@ const NAV = [
   { group: 'STORES', adminOnly: true, items: [
     { label: 'RM inward',        path: '/stores/rm-inward',       icon: PackageOpen },
     { label: 'Material issue',   path: '/stores/material-issue',  icon: ArrowDownToLine },
+  ]},
+  { group: 'QUALITY', adminOnly: true, items: [
+    { label: 'Inspections',     path: '/quality/inspections', icon: ClipboardCheck },
+    { label: 'NCR',             path: '/quality/ncr',           icon: AlertTriangle },
+  ]},
+  { group: 'DISPATCH', adminOnly: true, items: [
+    { label: 'Dispatch notes',  path: '/dispatch/notes',        icon: Truck },
+  ]},
+  { group: 'ENGINEERING', adminOnly: true, items: [
+    { label: 'Drawing revisions', path: '/engineering/drawing-revisions', icon: FileDiff },
   ]},
   { group: 'FINANCE', adminOnly: true, items: [
     { label: 'Accounts',          path: '/accounting',        icon: Landmark,    accountingOnly: true },
