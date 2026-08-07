@@ -184,6 +184,7 @@ function QuickLinkCard({ link, onNavigate, disabled, dragHandle }) {
       <button
         type="button"
         className="quick-link-card hover-lift"
+        data-tone={link.tone || 'blue'}
         data-disabled={disabled || undefined}
         disabled={disabled}
         onClick={() => !disabled && onNavigate(link.path)}
@@ -487,7 +488,7 @@ function QuickAccessGroupPanel({
                       className="quick-access-order-item-body"
                       onClick={() => onNavigate(link.path)}
                     >
-                      <span className="quick-access-order-item-icon">
+                      <span className="quick-access-order-item-icon" data-tone={link.tone || 'slate'}>
                         <Icon size={15} />
                       </span>
                       <span className="quick-access-order-item-label">{link.label}</span>

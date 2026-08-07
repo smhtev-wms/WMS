@@ -1,5 +1,7 @@
 /** Persisted quick-link layout on Quick Access (grouped by heading). */
 
+import { QUICK_ACCESS_TILE_TONES } from './quickAccessToneLib'
+
 export const QUICK_ACCESS_GROUP_DEFS = [
   { id: 'management', title: 'Management & insights' },
   { id: 'operations', title: 'Operations & production' },
@@ -271,6 +273,7 @@ export function resolveGroupedLinks(
   const disabledP = new Set(disabledPaths)
   const disabledG = new Set(disabledGroupIds)
   const byPath = new Map(links.map(l => [l.path, l]))
+  let toneIndex = 0
   const resolved = groups.map(g => {
     const groupDisabled = disabledG.has(g.id)
     return {
@@ -280,8 +283,11 @@ export function resolveGroupedLinks(
       links: g.paths.map(p => {
         const link = byPath.get(p)
         if (!link) return null
+        const tone = QUICK_ACCESS_TILE_TONES[toneIndex % QUICK_ACCESS_TILE_TONES.length]
+        toneIndex += 1
         return {
           ...link,
+          tone,
           disabled: groupDisabled || disabledP.has(p),
         }
       }).filter(Boolean),
