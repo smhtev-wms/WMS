@@ -6,6 +6,7 @@ import { listJobCardsBrief } from '../../lib/shopLib'
 import { listNcr, saveNcr, suggestNcrNo } from '../../lib/qualityLib'
 import { fmtDate } from '../../lib/orderConstants'
 import { Loader2, Plus, AlertTriangle, X, Save } from 'lucide-react'
+import AppModal from '../../components/ui/AppModal'
 
 const DISPOSITIONS = [
   { value: 'pending', label: 'Pending' },
@@ -118,11 +119,9 @@ export default function NcrPage() {
           </table>
         )}
       </div>
-      {modalOpen && (
-        <div className="modal-overlay" onClick={() => !saving && setModalOpen(false)}>
-          <div className="modal-panel" style={{ maxWidth: 480 }} onClick={e => e.stopPropagation()}>
+      <AppModal open={modalOpen} onClose={() => !saving && setModalOpen(false)} panelStyle={{ maxWidth: 480 }}>
             <div className="card-header"><h3 className="card-title">{editing ? 'Edit NCR' : 'Raise NCR'}</h3><button type="button" onClick={() => setModalOpen(false)}><X size={18} /></button></div>
-            <div style={{ padding: 18, display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div className="modal-panel-scroll custom-scrollbar" style={{ padding: 18, display: 'flex', flexDirection: 'column', gap: 10 }}>
               <input className="field-input" value={form.ncr_no} onChange={e => setForm(f => ({ ...f, ncr_no: e.target.value }))} />
               <select className="field-input" value={form.job_card_id} onChange={e => setForm(f => ({ ...f, job_card_id: e.target.value }))}>
                 <option value="">Job card</option>
@@ -139,13 +138,11 @@ export default function NcrPage() {
               </select>
               <textarea className="field-input" rows={2} value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} />
             </div>
-            <div style={{ padding: '0 18px 18px', display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+            <div className="modal-panel-footer" style={{ padding: '0 18px 18px', display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
               <button type="button" className="btn btn-secondary" onClick={() => setModalOpen(false)}>Cancel</button>
               <button type="button" className="btn btn-primary" onClick={handleSave} disabled={saving}><Save size={14} /> Save</button>
             </div>
-          </div>
-        </div>
-      )}
+      </AppModal>
     </div>
   )
 }

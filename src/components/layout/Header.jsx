@@ -387,6 +387,10 @@ export default function Header({ onEditDevice }) {
   useEffect(() => { getChurch().then(setChurch) }, [])
 
   useEffect(() => {
+    document.documentElement.style.setProperty('--header-h', `${HEADER_H}px`)
+  }, [])
+
+  useEffect(() => {
     const close = (e) => {
       if (licenseRef.current && !licenseRef.current.contains(e.target)) {
         setLicenseOpen(false)

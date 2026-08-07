@@ -5,6 +5,7 @@ import { canManageMasters, listItemsBrief } from '../../lib/mastersLib'
 import { listDrawingRevisions, saveDrawingRevision } from '../../lib/engineeringLib'
 import { fmtDate } from '../../lib/orderConstants'
 import { Loader2, Plus, FileDiff, X, Save } from 'lucide-react'
+import AppModal from '../../components/ui/AppModal'
 
 const emptyForm = () => ({
   item_id: '',
@@ -102,11 +103,9 @@ export default function DrawingRevisionsPage() {
           </table>
         )}
       </div>
-      {modalOpen && (
-        <div className="modal-overlay" onClick={() => !saving && setModalOpen(false)}>
-          <div className="modal-panel" style={{ maxWidth: 480 }} onClick={e => e.stopPropagation()}>
+      <AppModal open={modalOpen} onClose={() => !saving && setModalOpen(false)} panelStyle={{ maxWidth: 480 }}>
             <div className="card-header"><h3 className="card-title">Log drawing revision</h3><button type="button" onClick={() => setModalOpen(false)}><X size={18} /></button></div>
-            <div style={{ padding: 18, display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div className="modal-panel-scroll custom-scrollbar" style={{ padding: 18, display: 'flex', flexDirection: 'column', gap: 10 }}>
               <select className="field-input" value={form.item_id} onChange={e => onItemPick(e.target.value)}>
                 <option value="">Item *</option>
                 {items.map(i => <option key={i.id} value={i.id}>{i.item_code} — {i.description}</option>)}
@@ -123,13 +122,11 @@ export default function DrawingRevisionsPage() {
                 Update item master revision
               </label>
             </div>
-            <div style={{ padding: '0 18px 18px', display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+            <div className="modal-panel-footer" style={{ padding: '0 18px 18px', display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
               <button type="button" className="btn btn-secondary" onClick={() => setModalOpen(false)}>Cancel</button>
               <button type="button" className="btn btn-primary" onClick={handleSave} disabled={saving}><Save size={14} /> Save</button>
             </div>
-          </div>
-        </div>
-      )}
+      </AppModal>
     </div>
   )
 }

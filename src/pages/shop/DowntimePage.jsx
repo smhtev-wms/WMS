@@ -6,6 +6,7 @@ import { listDowntimeLogs, saveDowntimeLog } from '../../lib/shopLib'
 import { DOWNTIME_CATEGORIES } from '../../lib/shopConstants'
 import { toLocalInputValue, fromLocalInputValue } from '../../lib/planningConstants'
 import { Loader2, Plus, TimerOff, X, Save } from 'lucide-react'
+import AppModal from '../../components/ui/AppModal'
 
 const emptyForm = () => ({
   machine_id: '',
@@ -153,14 +154,12 @@ export default function DowntimePage() {
         )}
       </div>
 
-      {modalOpen && (
-        <div className="modal-overlay" onClick={() => !saving && setModalOpen(false)}>
-          <div className="modal-panel" style={{ maxWidth: 520 }} onClick={e => e.stopPropagation()}>
+      <AppModal open={modalOpen} onClose={() => !saving && setModalOpen(false)} panelStyle={{ maxWidth: 520 }}>
             <div className="card-header">
               <h3 className="card-title">{editing ? 'Edit downtime' : 'Log downtime'}</h3>
               <button type="button" onClick={() => setModalOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X size={18} /></button>
             </div>
-            <div style={{ padding: '18px 22px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div className="modal-panel-scroll custom-scrollbar" style={{ padding: '18px 22px', display: 'flex', flexDirection: 'column', gap: 12 }}>
               <div>
                 <label className="field-label">Machine *</label>
                 <select className="field-input" value={form.machine_id} onChange={e => setForm(f => ({ ...f, machine_id: e.target.value }))}>
@@ -193,15 +192,13 @@ export default function DowntimePage() {
                 <textarea className="field-input" rows={2} value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} />
               </div>
             </div>
-            <div style={{ padding: '0 22px 20px', display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+            <div className="modal-panel-footer" style={{ padding: '0 22px 20px', display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
               <button type="button" className="btn btn-secondary" onClick={() => setModalOpen(false)} disabled={saving}>Cancel</button>
               <button type="button" className="btn btn-primary" onClick={handleSave} disabled={saving}>
                 {saving ? <><Loader2 size={14} className="animate-spin" /> Saving…</> : <><Save size={14} /> Save</>}
               </button>
             </div>
-          </div>
-        </div>
-      )}
+      </AppModal>
     </div>
   )
 }

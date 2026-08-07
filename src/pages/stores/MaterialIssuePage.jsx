@@ -12,6 +12,7 @@ import {
 } from '../../lib/storesLib'
 import { fmtDate } from '../../lib/orderConstants'
 import { Loader2, Plus, ArrowDownToLine, X, Save } from 'lucide-react'
+import AppModal from '../../components/ui/AppModal'
 
 const emptyForm = () => ({
   issue_no: '',
@@ -163,14 +164,12 @@ export default function MaterialIssuePage() {
         )}
       </div>
 
-      {modalOpen && (
-        <div className="modal-overlay" onClick={() => !saving && setModalOpen(false)}>
-          <div className="modal-panel" style={{ maxWidth: 520 }} onClick={e => e.stopPropagation()}>
+      <AppModal open={modalOpen} onClose={() => !saving && setModalOpen(false)} panelStyle={{ maxWidth: 520 }}>
             <div className="card-header">
               <h3 className="card-title">Issue material</h3>
               <button type="button" onClick={() => setModalOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X size={18} /></button>
             </div>
-            <div style={{ padding: '18px 22px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div className="modal-panel-scroll custom-scrollbar" style={{ padding: '18px 22px', display: 'flex', flexDirection: 'column', gap: 12 }}>
               {lots.length === 0 ? (
                 <p style={{ margin: 0, fontSize: 13, color: 'var(--text-3)' }}>No inward lots with balance. Record RM inward first.</p>
               ) : (
@@ -223,7 +222,7 @@ export default function MaterialIssuePage() {
                 </>
               )}
             </div>
-            <div style={{ padding: '0 22px 20px', display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+            <div className="modal-panel-footer" style={{ padding: '0 22px 20px', display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
               <button type="button" className="btn btn-secondary" onClick={() => setModalOpen(false)} disabled={saving}>Cancel</button>
               {lots.length > 0 && (
                 <button type="button" className="btn btn-primary" onClick={handleSave} disabled={saving}>
@@ -231,9 +230,7 @@ export default function MaterialIssuePage() {
                 </button>
               )}
             </div>
-          </div>
-        </div>
-      )}
+      </AppModal>
     </div>
   )
 }

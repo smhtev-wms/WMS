@@ -7,6 +7,7 @@ import { useAuth } from '../../lib/AuthContext'
 import { useToast } from '../../lib/toast'
 import { canManageMasters, listMaster, saveMaster, setMasterActive, listCustomersBrief } from '../../lib/mastersLib'
 import { Loader2, Plus, Pencil, Power, Search, X, Save } from 'lucide-react'
+import AppModal from '../../components/ui/AppModal'
 
 function matchesSearch(row, q, config) {
   if (!q) return true
@@ -252,32 +253,28 @@ export default function MasterCrudPage({ config }) {
         )}
       </div>
 
-      {modalOpen && (
-        <div className="modal-overlay" onClick={() => !saving && setModalOpen(false)}>
-          <div className="modal-panel" style={{ maxWidth: 520, maxHeight: '90vh', overflow: 'auto' }} onClick={e => e.stopPropagation()}>
-            <div className="card-header">
-              <h3 className="card-title">{editing ? `Edit ${config.title}` : `New ${config.title}`}</h3>
-              <button type="button" onClick={() => setModalOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-3)' }}><X size={18} /></button>
-            </div>
-            <div style={{ padding: '18px 22px', display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {config.fields.map(f => (
-                <div key={f.key}>
-                  <label className="field-label">
-                    {f.label}{f.required && <span style={{ color: 'var(--danger)' }}> *</span>}
-                  </label>
-                  {renderField(f)}
-                </div>
-              ))}
-            </div>
-            <div style={{ padding: '0 22px 20px', display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
-              <button type="button" className="btn btn-secondary" onClick={() => setModalOpen(false)} disabled={saving}>Cancel</button>
-              <button type="button" className="btn btn-primary" onClick={handleSave} disabled={saving}>
-                {saving ? <><Loader2 size={14} className="animate-spin" /> Saving…</> : <><Save size={14} /> Save</>}
-              </button>
-            </div>
-          </div>
+      <AppModal open={modalOpen} onClose={() => !saving && setModalOpen(false)} panelStyle={{ maxWidth: 520 }}>
+        <div className="card-header">
+          <h3 className="card-title">{editing ? `Edit ${config.title}` : `New ${config.title}`}</h3>
+          <button type="button" onClick={() => setModalOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-3)' }}><X size={18} /></button>
         </div>
-      )}
+        <div className="modal-panel-scroll custom-scrollbar" style={{ padding: '18px 22px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {config.fields.map(f => (
+            <div key={f.key}>
+              <label className="field-label">
+                {f.label}{f.required && <span style={{ color: 'var(--danger)' }}> *</span>}
+              </label>
+              {renderField(f)}
+            </div>
+          ))}
+        </div>
+        <div className="modal-panel-footer" style={{ padding: '0 22px 20px', display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+          <button type="button" className="btn btn-secondary" onClick={() => setModalOpen(false)} disabled={saving}>Cancel</button>
+          <button type="button" className="btn btn-primary" onClick={handleSave} disabled={saving}>
+            {saving ? <><Loader2 size={14} className="animate-spin" /> Saving…</> : <><Save size={14} /> Save</>}
+          </button>
+        </div>
+      </AppModal>
     </div>
   )
 }

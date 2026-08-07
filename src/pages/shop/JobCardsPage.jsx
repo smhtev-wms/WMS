@@ -6,6 +6,7 @@ import { canManageMasters } from '../../lib/mastersLib'
 import { listJobCards, createJobCard, suggestJobNumber, listPoLinesForPlanning } from '../../lib/shopLib'
 import { JOB_STATUSES, statusMeta, fmtDate } from '../../lib/shopConstants'
 import { Loader2, Plus, Search, Briefcase, X, Save } from 'lucide-react'
+import AppModal from '../../components/ui/AppModal'
 
 export default function JobCardsPage() {
   const navigate = useNavigate()
@@ -145,14 +146,12 @@ export default function JobCardsPage() {
         )}
       </div>
 
-      {modalOpen && (
-        <div className="modal-overlay" onClick={() => !saving && setModalOpen(false)}>
-          <div className="modal-panel" style={{ maxWidth: 480 }} onClick={e => e.stopPropagation()}>
+      <AppModal open={modalOpen} onClose={() => !saving && setModalOpen(false)} panelStyle={{ maxWidth: 480 }}>
             <div className="card-header">
               <h3 className="card-title">New job card</h3>
               <button type="button" onClick={() => setModalOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X size={18} /></button>
             </div>
-            <div style={{ padding: '18px 22px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div className="modal-panel-scroll custom-scrollbar" style={{ padding: '18px 22px', display: 'flex', flexDirection: 'column', gap: 12 }}>
               {poLines.length === 0 ? (
                 <p style={{ margin: 0, fontSize: 13, color: 'var(--text-3)' }}>No open PO lines without a job card. Create a PO first.</p>
               ) : (
@@ -181,7 +180,7 @@ export default function JobCardsPage() {
                 </>
               )}
             </div>
-            <div style={{ padding: '0 22px 20px', display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+            <div className="modal-panel-footer" style={{ padding: '0 22px 20px', display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
               <button type="button" className="btn btn-secondary" onClick={() => setModalOpen(false)} disabled={saving}>Cancel</button>
               {poLines.length > 0 && (
                 <button type="button" className="btn btn-primary" onClick={handleCreate} disabled={saving}>
@@ -189,9 +188,7 @@ export default function JobCardsPage() {
                 </button>
               )}
             </div>
-          </div>
-        </div>
-      )}
+      </AppModal>
     </div>
   )
 }

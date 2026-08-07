@@ -554,7 +554,7 @@
    BASE
    ═══════════════════════════════════════════════════════════════ */
 
-html { zoom: 0.95; }
+html { zoom: 0.95; --header-h: 88px; }
 
 @layer base {
   body {
@@ -1254,25 +1254,45 @@ input[type="radio"]                    { cursor: pointer; user-select: none; }
 .modal-overlay {
   position: fixed;
   inset: 0;
-  z-index: 9999;
+  z-index: 10050;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  padding: 20px;
+  padding: calc(var(--header-h) + 16px) 20px 28px;
+  overflow-y: auto;
   background: var(--overlay);
   backdrop-filter: blur(6px);
 }
 .modal-panel {
   width: 100%;
   max-width: 520px;
+  max-height: calc((100vh - var(--header-h) - 44px) / 0.95);
+  margin: auto 0;
   background: var(--card-bg);
   border: 1px solid var(--card-border);
   border-radius: 16px;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.22);
 }
 .modal-panel-sm {
   max-width: 420px;
+}
+.modal-panel-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+.modal-panel-scroll.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+.modal-panel-footer {
+  flex-shrink: 0;
 }
 .modal-icon-wrap {
   width: 40px;

@@ -4,6 +4,7 @@ import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../lib/AuthContext'
 import Sidebar from './Sidebar'
 import Header, { HEADER_H } from './Header'
+import AppModal from '../ui/AppModal'
 
 export default function AppLayout({ children }) {
   const { user, profile, refreshProfile } = useAuth()
@@ -152,10 +153,8 @@ export default function AppLayout({ children }) {
 
       {/* ── Personal Info Edit Popup ──────────────────────────────── */}
       {showPersonalInfo && pendingInfo && (
-        <div className="modal-overlay">
-          <div className="modal-panel modal-panel-sm" role="dialog" aria-labelledby="personal-info-title">
-
-            <div className="card-header" style={{ borderRadius: 0 }}>
+        <AppModal open panelClassName="modal-panel-sm" aria-labelledby="personal-info-title" closeOnBackdrop={false}>
+          <div className="card-header" style={{ borderRadius: 0 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <div className="modal-icon-wrap">
                   <Monitor size={18} style={{ color: 'var(--accent)' }} />
@@ -222,9 +221,7 @@ export default function AppLayout({ children }) {
                   : 'Update'}
               </button>
             </div>
-
-          </div>
-        </div>
+        </AppModal>
       )}
     </div>
   )
