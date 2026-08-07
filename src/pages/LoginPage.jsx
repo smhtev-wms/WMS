@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../lib/AuthContext'
 import { signIn } from '../lib/auth'
 import { VENDOR, getChurch } from '../lib/supabase'
-import { getOrCreateDeviceId, checkDeviceRegistered, checkDeviceRegisteredByUser } from '../lib/loginLogs'
+import { getOrCreateDeviceId, checkDeviceRegistered, checkDeviceRegisteredByUser, tagLoginWithDevice } from '../lib/loginLogs'
 import { fetchCompanionStatus } from '../lib/companion'
 import { Eye, EyeOff, Loader2, CheckCircle2 } from 'lucide-react'
 
@@ -94,6 +94,13 @@ export default function LoginPage() {
 
         if (knownByDevice) {
           sessionStorage.removeItem('device_setup_pending')
+          void tagLoginWithDevice(uid, {
+            deviceId:    devId,
+            userName:    knownByDevice.user_name,
+            location:    knownByDevice.location,
+            org:         knownByDevice.org_name,
+            designation: knownByDevice.designation || null,
+          })
         } else {
           const knownByUser = await checkDeviceRegisteredByUser(uid)
           if (knownByUser) {

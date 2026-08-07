@@ -1,5 +1,6 @@
 import { supabase } from './supabase'
 import { formatDate } from './date'
+import { insertLoginLog } from './loginLogs'
 
 export const ROLE_PERMISSIONS = {
   super_admin: { canAdd:true,  canEdit:true,  canDelete:true,  canPrint:true,  canManageUsers:true  },
@@ -87,6 +88,19 @@ export async function signIn(email, password) {
     }
     
     console.log('✅ Profile loaded:', profile.email)
+
+    const emergency = typeof window !== 'undefined' && window.localStorage?.getItem('emergency_bypass')
+    const loginType = emergency ? 'emergency' : 'trustgate'
+    void insertLoginLog({
+      userId:    data.user?.id,
+      email:     profile.email,
+      fullName:  profile.full_name,
+      role:      profile.role,
+      userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : null,
+      loginType,
+    }).finally(() => {
+      try { if (emergency) window.localStorage.removeItem('emergency_bypass') } catch { /* ignore */ }
+    })
 
     return { data, error: null }
 

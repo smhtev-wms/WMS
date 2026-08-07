@@ -1,26 +1,99 @@
 import { supabase, adminSupabase } from './supabase'
 
-/* Stamp logout_at on the most recent open session for this user (Church-CMS logic). */
+function detectBrowserInfo(ua = '') {
+  const browser = ua.includes('Edge/') ? 'Edge'
+    : ua.includes('OPR/') || ua.includes('Opera') ? 'Opera'
+    : ua.includes('Chrome/') && !ua.includes('Chromium') ? 'Chrome'
+    : ua.includes('Safari/') && !ua.includes('Chrome/') ? 'Safari'
+    : ua.includes('Firefox/') ? 'Firefox'
+    : ua.includes('Chromium') ? 'Chromium'
+    : ua.includes('MSIE') || ua.includes('Trident/') ? 'Internet Explorer'
+    : 'Unknown'
+
+  const os = ua.includes('Windows') ? 'Windows'
+    : ua.includes('Android') ? 'Android'
+    : ua.includes('iPhone') || ua.includes('iPad') ? 'iOS'
+    : ua.includes('Mac OS') ? 'macOS'
+    : ua.includes('Linux') ? 'Linux'
+    : null
+
+  return { browser, os }
+}
+
+/** Session row only — no IP or geo lookup (Church-CMS shape, privacy-safe). */
+export async function insertLoginLog({ userId, email, fullName, role, userAgent, loginType = 'trustgate' }) {
+  const ua = userAgent || (typeof navigator !== 'undefined' ? navigator.userAgent : '')
+  const { browser, os } = detectBrowserInfo(ua)
+
+  const payload = {
+    user_id:    userId,
+    email,
+    full_name:  fullName || null,
+    user_role:  role || null,
+    user_agent: ua || null,
+    browser,
+    os,
+    login_type: loginType,
+  }
+
+  const { data, error } = await supabase
+    .from('login_logs')
+    .insert(payload)
+    .select('id')
+    .single()
+
+  if (error) {
+    console.error('[loginLogs] insert error:', error)
+    return null
+  }
+  return data?.id ?? null
+}
+
 export async function stampLogout(userId) {
   if (!userId) return
 
-  const { data, error: fetchErr } = await adminSupabase
+  const { data, error: fetchErr } = await supabase
     .from('login_logs')
-    .select('id')
+    .select('id, login_at')
     .eq('user_id', userId)
     .is('logout_at', null)
     .order('login_at', { ascending: false })
     .limit(1)
-    .single()
+    .maybeSingle()
 
   if (fetchErr || !data?.id) return
 
-  const { error } = await adminSupabase
+  const loginAtMs = data.login_at ? new Date(data.login_at).getTime() : Date.now()
+  const durationSeconds = Math.max(0, Math.round((Date.now() - loginAtMs) / 1000))
+
+  const { error } = await supabase
     .from('login_logs')
-    .update({ logout_at: new Date().toISOString() })
+    .update({ logout_at: new Date().toISOString(), duration_seconds: durationSeconds })
     .eq('id', data.id)
+    .eq('user_id', userId)
 
   if (error) console.error('[loginLogs] logout stamp error:', error)
+}
+
+export async function tagLoginWithDevice(userId, { deviceId, userName, location, org, designation }) {
+  if (!userId) return
+  for (let i = 0; i < 6; i++) {
+    if (i > 0) await new Promise(r => setTimeout(r, 1000))
+    const { data } = await supabase
+      .from('login_logs')
+      .select('id')
+      .eq('user_id', userId)
+      .is('device_id', null)
+      .order('login_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+    if (data?.id) {
+      const update = { device_id: deviceId, user_name: userName, location, org }
+      if (designation != null) update.designation = designation
+      await supabase.from('login_logs').update(update).eq('id', data.id).eq('user_id', userId)
+      return
+    }
+  }
 }
 
 // ── Device registration ───────────────────────────────────────────────────────
@@ -297,7 +370,7 @@ export async function updateLoginLogLocation(id, { city, region, country }) {
 }
 
 export async function getLoginLogs({ limit = 50, offset = 0, email = '', role = '' } = {}) {
-  let q = adminSupabase
+  let q = supabase
     .from('login_logs')
     .select('*', { count: 'exact' })
     .order('login_at', { ascending: false })
@@ -307,6 +380,9 @@ export async function getLoginLogs({ limit = 50, offset = 0, email = '', role = 
   if (role)  q = q.eq('user_role', role)
 
   const { data, count, error } = await q
-  if (error) throw error
+  if (error) {
+    console.error('[loginLogs] getLoginLogs error:', error)
+    throw error
+  }
   return { data: data || [], count: count || 0 }
 }

@@ -87,6 +87,7 @@ export default function LoginLogsPage() {
   const [filterEmail, setFilterEmail] = useState('')
   const [filterRole,  setFilterRole]  = useState('')
   const [emailInput,  setEmailInput]  = useState('')
+  const [loadError,   setLoadError]   = useState('')
 
   if (!ADMIN_ROLES.includes(profile?.role)) {
     return (
@@ -101,6 +102,7 @@ export default function LoginLogsPage() {
 
   const load = useCallback(async (p = 0) => {
     setLoading(true)
+    setLoadError('')
     try {
       const { data, count } = await getLoginLogs({
         limit: PAGE_SIZE, offset: p * PAGE_SIZE,
@@ -110,6 +112,9 @@ export default function LoginLogsPage() {
       setRows(data); setTotal(count); setPage(p)
     } catch (err) {
       console.error(err)
+      setRows([])
+      setTotal(0)
+      setLoadError(err?.message || 'Could not load login records.')
     } finally {
       setLoading(false)
     }
@@ -168,7 +173,7 @@ export default function LoginLogsPage() {
               <LogIn size={20} style={{ color: 'var(--accent)', flexShrink: 0 }} />
               Login Details
             </h1>
-          <p className="page-subtitle">Audit log of all user login sessions — who logged in, when, from where, and for how long.</p>
+          <p className="page-subtitle">Audit log of user login sessions — who signed in, when, and for how long (no IP tracking).</p>
         </div>
       </div>
 
@@ -227,6 +232,10 @@ export default function LoginLogsPage() {
           <div className="flex items-center justify-center h-40 gap-2 text-gray-500">
             <Loader2 size={20} className="animate-spin" />
             <span className="text-sm">Loading…</span>
+          </div>
+        ) : loadError ? (
+          <div className="flex items-center justify-center h-40 px-6 text-center">
+            <p className="text-sm" style={{ color: 'var(--danger)' }}>{loadError}</p>
           </div>
         ) : !rows.length ? (
           <div className="flex items-center justify-center h-40">
